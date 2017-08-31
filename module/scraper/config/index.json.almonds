@@ -1,0 +1,38 @@
+{
+  "scraper": {
+    "catalog": [
+      {
+        "jobs": {
+          "before": [
+            "scraper/job/mti-converter"
+          ],
+          "after": []
+        },
+
+        "source": {
+          "type": "file",
+          "path": "data/country.xlsx",
+          "searchKeys": ["code"]
+        },
+        "crawler": [
+          {
+            "name": "almonds-com",
+            "fields": {
+              "block": {"selector": ".view-abc-resources .node.node-resource"}
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/almonds.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+          }
+        }
+      }
+    ]
+  }
+}

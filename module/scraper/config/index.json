@@ -1,0 +1,57 @@
+{
+  "scraper": {
+    "catalog": [
+
+      {
+        "source": {
+          "type": "site",
+          "path": "https://www.supermarketcy.com.cy/artopoieio",
+          "selector": ".menu:first-child .first.expanded.level-1 .first.leaf.single.item-1.no-children.level-2 a",
+          "options": {
+            "nextPage": ".pager .pager__item--next a",
+            "dynamicFields": {
+              "Category": {"selector": ".breadcrumb li:first-child a"},
+              "Sub-category": {"selector": ".breadcrumb li:nth-child(2)"},
+              "Sub-sub-category": {"selector": ".breadcrumb li:nth-child(3)"}
+            }
+          },
+          "fields": {
+            "category": "Category",
+            "sub-category": "Sub-category",
+            "sub-sub-category": "Sub-sub-category"
+          }
+        },
+        "crawler": [
+          {
+            "name": "default",
+            "group": {
+              "selector": "#findastic-browse .views-row",
+              "fields": {
+                "Product ID": {"selector": ".commerce-add-to-cart input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
+                "Item url": {"selector": ".views-field-title a", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "Product Name": {"selector": ".views-field-title a"},
+                "Price": {"selector": ".views-field-commerce-price .field-content", "__output": {"as": "html"}, "__filter": ["text-node", "price"]},
+                "Photo url": {"selector": ".views-field-field-product-image .field-content a:nth-child(2)", "__output": {"attr": "href"}}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/supermarketcy.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "Product ID": "",
+            "Item url": "",
+            "Category": "$source.category",
+            "Sub-category": "$source.sub-category",
+            "Sub-sub-category": "$source.sub-sub-category"
+          }
+        }
+      }
+    ]
+  }
+}
