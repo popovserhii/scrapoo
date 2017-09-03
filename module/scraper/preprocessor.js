@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 class Preprocessor {
-  constructor(source, config/*, crawler*/) {
+  constructor(source, config) {
     this._config = config || {};
     this._source = source;
     //this._crawler = crawler;
@@ -33,14 +33,8 @@ class Preprocessor {
           preFields[name] = this._processValue(varPattern.substring(1));
         }
       });
-
       return _.assign({}, configFields, preFields, _fields);
     });
-
-    //  console.log(configFields);
-
-    //console.log(fields);
-
     return isArray ? fields : fields.shift();
   }
 

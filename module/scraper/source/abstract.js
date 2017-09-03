@@ -3,9 +3,6 @@ let _ = require('lodash');
 let Csv = require('scraper/output/csv');
 let URL = require('url');
 let PrepareBaseUrl = require('scraper/adapter/helper/prepare-base-url');
-//let HotlineUa = require('scraper/adapter/hotline-ua');
-//let AlmondsCom = require('scraper/adapter/almonds-com');
-//let CheapbasketCom = require('scraper/adapter/cheapbasket-com');
 let Preprocessor = require('scraper/preprocessor');
 
 class Abstract {
@@ -22,7 +19,7 @@ class Abstract {
     this.location = URL.parse(config.source.path);
     this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
 
-    this.logger = fs.createWriteStream('logs/error.log', {
+    this.logger = fs.createWriteStream('data/error.log', {
       flags: 'a', // 'a' means appending (old data will be preserved)
       encoding: 'utf8',
     });
@@ -55,27 +52,6 @@ class Abstract {
     let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
 
     return adapter;
-  }
-
-  get adapter() {
-    /*let key = pool + '-' + name;
-    if (this.helpers[key] !== undefined) {
-      return this.helpers[key];
-    }
-
-    let HelperClass = require('./helper/' + key);
-    return this.helpers[key] = new HelperClass(this);*/
-
-    if (!this._adapters[this.currCrawlerName]) {
-      let Adapter = require('scraper/adapter/' + config.name);
-      let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
-
-      //this._adapter = new AlmondsCom(this.nightmare, this.config.crawler[0]);
-      //this._adapter = new HotlineUa(this.nightmare, this.config.crawler[0]);
-      this._adapters = new CheapbasketCom(this.nightmare, this.config.crawler[0]);
-    }
-
-    return this._adapters;
   }
 
   set output(output) {
@@ -128,27 +104,18 @@ class Abstract {
   }
 
   async process(searchable) {
-    //return;
     try {
-      //console.log(searchable);
-
       for (let key in this.config.crawler) {
-        //this.currCrawlerName = crawler;
         // here must be iteration though config.crawler
         let adapter = this._crawler = this.getCrawler(this.config.crawler[key]);
         let fields = await adapter.scan(searchable);
-
-        //console.log(fields);
 
         if (_.size(fields)) {
           // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
           // а потрібно додати змінні в _row для категорії і підкатегорії.
           // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
-
           await this._prepareFields();
-
           fields = this.preprocessor.process(fields);
-
           await this.output.send(fields);
         } else {
           // fields not found with any crawler
@@ -158,9 +125,6 @@ class Abstract {
             message: 'Not found'
           });
         }
-
-        this.currCrawlerName = '';
-
         if (await this.nextPageExist()) {
           await this.process(this._nextUrl);
         }
@@ -178,8 +142,6 @@ class Abstract {
 
     if (options.nextPage) {
       nextExist = await this.nightmare.visible(options.nextPage);
-      //console.log('options.nextPage ' + options.nextPage);
-
       if (nextExist) {
         this._nextUrl = await this.nightmare.evaluate(function(nextPageSelector) {
           // return next page url
@@ -190,7 +152,6 @@ class Abstract {
 
     return nextExist;
   }
-
 }
 
 module.exports = Abstract;

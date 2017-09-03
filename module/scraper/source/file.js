@@ -24,7 +24,7 @@ class File {
     this._outputProblem = null;
     this._preprocessor = null;
 
-    this.logger = fs.createWriteStream('logs/error.log', {
+    this.logger = fs.createWriteStream('data/error.log', {
       flags: 'a', // 'a' means appending (old data will be preserved)
       encoding: 'utf8',
     })
@@ -226,35 +226,6 @@ class File {
       dataArray.push(await getAddress(link));
       return dataArray;
     }, Promise.resolve([]));
-
-
-      /*.then(function(searchable) {
-      that.searchKeys = searchable;
-      that.crawlerQueue = that.config.crawler;
-      let adapter = that.getCrawler(that.crawlerQueue.shift()); // retrieve hotline etc. adapter
-      that.scanAdapter(adapter, that.searchKeys.shift())
-    }).then(function () {
-      if (that.searchKeys.length) {
-
-      }
-    });
-    */
-  }
-
-  scanAdapter(searchable) {
-    let that = this;
-    let options = this.config.options;
-
-    let crawler = that.getCrawler(options.crawler[0]);
-    adapter.process(searchable);
-    /*adapter
-      .scan(searchable)
-      .then(function(result) {
-        if (!result || !result.length) {
-          let adapter = that.getCrawler(that.crawlerQueue.shift());
-          that.scanAdapter(adapter);
-        }
-      });*/
   }
 
   log(message) {

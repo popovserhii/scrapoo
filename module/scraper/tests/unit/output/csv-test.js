@@ -39,4 +39,14 @@ describe('CSV Output', function() {
 
     csv.send(fields);
   });
+
+  it('_preparePath: should return name with current date', function() {
+    let csv = new Csv({path: '/data/text.csv'});
+
+    let path = 'data/scraped/supermarketcy/supermarketcy.csv';
+    let newPath = csv._preparePath(path);
+    //console.log(newPath);
+
+    expect(newPath).to.be.a('string');
+  });
 });

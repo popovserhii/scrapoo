@@ -90,9 +90,6 @@ class Site extends Abstract{
           });
         }, options.iterate);
 
-      //console.log(options.iterate);
-      //console.log(urls);
-
     for (let i = 0; i < urls.length; i++) {
       await this._scanUrls(urls[i]);
     }

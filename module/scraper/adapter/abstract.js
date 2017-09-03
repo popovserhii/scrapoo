@@ -9,11 +9,6 @@ class Abstract {
     this._config = config || {};
     this.helpers = {};
 
-    /*this.logger = fs.createWriteStream('data/error.log', {
-      flags: 'a', // 'a' means appending (old data will be preserved)
-      encoding: 'utf8',
-    });*/
-
     if (new.target === Abstract) {
       throw new TypeError('Cannot construct Abstract instances directly');
     }

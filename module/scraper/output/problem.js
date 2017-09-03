@@ -5,7 +5,7 @@ let _ = require('lodash');
 class Problem {
 
   constructor(file) {
-    this.pathname = file;
+    this._pathname = file;
     this.file = fs.createWriteStream(file, {
       flags: 'a',
       encoding: 'utf8',
@@ -17,7 +17,7 @@ class Problem {
   }
 
   getPathname() {
-    return this.pathname;
+    return this._pathname;
   }
 
   get output() {
@@ -25,12 +25,7 @@ class Problem {
   }
 
   send(row) {
-
     let dsv = d3.dsvFormat(';');
-    //if (!this.stats.size) {
-    //  let csv = dsv.formatRows([_.keys(row)]);
-    //  this.file.write(csv + '\n');
-    //}
 
     let csv = dsv.formatRows([_.values(row)]);
     // call the write option where you need to append new data
