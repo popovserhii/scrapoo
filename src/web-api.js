@@ -5,9 +5,10 @@ import {HttpClient} from 'aurelia-http-client';
 export class WebAPI {
 
   constructor(client) {
+    let url = window.location.protocol + "//api." + window.location.host;
     client
       .configure(x => {
-        x.withBaseUrl('http://api.scrapoo.dev');
+        x.withBaseUrl(url);
         //x.withHeader('Authorization', 'bearer 123');
       });
     this._client = client;
