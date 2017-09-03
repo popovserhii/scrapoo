@@ -36,7 +36,7 @@ app.get('/api/sources/:source', async (request, response) => {
   let scrapedFile = await com.scrap(sourceName);
   scrapedFile = scrapedFile.replace(/\\/g,"/");
   //console.log(scrapedFile);
-  let host = request.protocol + '://' + request.get('x-forwarded-host');
+  let host = request.protocol + '://' + request.get('host');
   let source = {
     name: sourceName,
     files: [{
