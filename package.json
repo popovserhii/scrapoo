@@ -1,31 +1,31 @@
 {
-  "name": "scraper",
-  "version": "0.0.0",
+  "name": "scrapp",
   "description": "Web scraper based on configuration json files",
-  "main": "main.js",
-  "scripts": {
-    "start": "node main.js",
-    "start-linux": "xvfb-run -a --server-args=\"-screen 0 1024x768x24\" node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/popovsergiy/scraper.git"
   },
   "keywords": [
+    "scrapoo",
     "crawler",
     "scraper"
   ],
   "author": "Serhii Popov",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/popovsergiy/scraper/issues"
-  },
-  "homepage": "https://github.com/popovsergiy/scraper#readme",
+
   "dependencies": {
+    "aurelia-animator-css": "^1.0.2",
+    "aurelia-bootstrapper": "^2.1.1",
+    "aurelia-http-client": "^1.1.1",
+    "bluebird": "^3.4.1",
+    "bootstrap": "^3.3.7",
+    "nprogress": "^0.2.0",
+    "requirejs": "^2.3.2",
+    "text": "github:requirejs/text#latest",
     "app-module-path": "^2.2.0",
     "cheerio": "^1.0.0-rc.2",
-    "d3-dsv": "^1.0.5",
+    "d3-dsv": "^1.0.7",
     "dateformat": "^2.0.0",
     "exceljs": "^0.5.1",
     "express": "^4.15.4",
@@ -35,11 +35,46 @@
     "nightmare": "^2.10.0",
     "random-useragent": "^0.3.1",
     "sprintf-js": "^1.1.1",
-    "url": "^0.11.0",
-    "vo": "^4.0.2"
+    "url": "^0.11.0"
   },
+  "peerDependencies": {},
   "devDependencies": {
-    "chai": "^4.1.1",
-    "sinon": "^3.2.0"
+    "aurelia-cli": "^0.31.3",
+    "aurelia-testing": "^1.0.0-beta.3.0.1",
+    "aurelia-tools": "^1.0.0",
+    "babel-eslint": "^6.0.4",
+    "babel-plugin-syntax-flow": "^6.8.0",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-es2015-modules-amd": "^6.8.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.10.3",
+    "babel-plugin-transform-flow-strip-types": "^6.8.0",
+    "babel-polyfill": "^6.9.1",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-stage-1": "^6.5.0",
+    "babel-register": "^6.24.0",
+    "browser-sync": "^2.13.0",
+    "connect-history-api-fallback": "^1.2.0",
+    "debounce": "^1.0.2",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-changed-in-place": "^2.0.3",
+    "gulp-eslint": "^2.0.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.0.0-alpha",
+    "gulp-watch": "^4.3.11",
+    "html-minifier": "^3.2.3",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-babel-preprocessor": "^6.0.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "minimatch": "^3.0.2",
+    "through2": "^2.0.1",
+    "uglify-js": "^3.0.19",
+    "vinyl-fs": "^2.4.3"
   }
 }

@@ -1,0 +1,21 @@
+<template>
+  <require from="bootstrap/css/bootstrap.css"></require>
+  <require from="./styles.css"></require>
+
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">
+        <i class="fa fa-user"></i>
+        <span>Scraper</span>
+      </a>
+    </div>
+  </nav>
+
+  <loading-indicator loading.bind="router.isNavigating || api.isRequesting"></loading-indicator>
+  
+  <div class="container">
+    <div class="row">
+      <router-view class="col-md-12"></router-view>
+    </div>
+  </div>
+</template>

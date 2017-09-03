@@ -1,0 +1,18 @@
+<template>
+	<div class="panel panel-primary">
+		<div class="panel-body">
+			<div class="col-md-4" repeat.for="source of scrapers">
+				<p class="text-center">
+					<button class="btn btn-success btn-lg btn-block" click.delegate="scrape(source)" disabled.bind="(isScraping[source.name])">${source.name}</button>
+				</p>
+				<ul class="list-group">
+					<li repeat.for="file of source.files" class="list-group-item">
+						<a href="${file.url}">
+							<p class="list-group-item-text">${file.name}</p>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</template>

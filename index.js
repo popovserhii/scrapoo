@@ -14,6 +14,8 @@ app.get('/api/sources', (request, response) => {
   let host = request.protocol + '://' + request.get('x-forwarded-host');
   let json = [];
 
+  console.log(host);
+
   sources.map(name => {
     let paths = com.getScrapedFiles(name);
     let source = {
