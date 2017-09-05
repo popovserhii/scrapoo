@@ -8,6 +8,14 @@ let com = new Communicator();
 
 app.use('/data', express.static('data'));
 
+// Add headers
+
+#var server = app.listen(app.get('port'), function() {
+#  console.log('Express server listening on port ' + server.address().port);
+#});
+#server.timeout = 300000;
+
+
 app.get('/api/sources', (request, response) => {
   let sources = ['cheapbasket', 'supermarketcy', 'supermarketcy-en'];
 

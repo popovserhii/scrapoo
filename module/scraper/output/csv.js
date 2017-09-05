@@ -18,6 +18,7 @@ class Csv {
     this.stats = fs.existsSync(this._pathname)
       ? fs.statSync(this._pathname)
       : {};
+    this.stats = 0;
   }
 
   get pathname() {
@@ -35,11 +36,11 @@ class Csv {
     let dsv = d3.dsvFormat(';');
     for (let r in row) {
       //console.log(row[r]);
-      if (!this.stats.size) {
+      if (!this.stats) {
         let csv = dsv.formatRows([_.keys(row[r])]);
 
         await this.file.write(csv + '\n');
-        this.stats.size++; // feature
+        this.stats++; // feature
       }
 
       let csv = dsv.formatRows([_.values(row[r])]);

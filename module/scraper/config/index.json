@@ -6,9 +6,9 @@
           "type": "site",
           "name": "cheapbasket",
           "path": "http://cheapbasket.com.cy",
-          "selector": "#my_menu > div:first-child > a:nth-child(2)",
+          "selector": "#my_menu > div > a",
           "options": {
-            "iterate": "#right_column .listed_product:nth-child(3) .img_cont + div a",
+            "iterate": "#right_column .listed_product .img_cont + div a",
             "nextPage": ".paging .prev_next:last-child",
             "dynamicFields": {
               "Category": {"selector": ".breadcrumbs .B_crumb:nth-child(2) a"},
@@ -55,8 +55,8 @@
         "source": {
           "name": "supermarketcy",
           "type": "site",
-          "path": "https://www.supermarketcy.com.cy/trofes-gia-poylia",
-          "selector": "#block-system-main-menu > .menu > li:first-child .submenu:nth-child(2) .level-2:first-child > a",
+          "path": "https://www.supermarketcy.com.cy/artopoieio",
+          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
           "options": {
             "nextPage": ".pager .pager__item--next a",
             "dynamicFields": {
@@ -107,8 +107,8 @@
         "source": {
           "name": "supermarketcy-en",
           "type": "site",
-          "path": "https://www.supermarketcy.com.cy/en/trofes-gia-poylia",
-          "selector": "#block-system-main-menu > .menu > li:first-child .submenu:nth-child(2) .level-2:first-child > a",
+          "path": "https://www.supermarketcy.com.cy/en/artopoieio",
+          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
           "options": {
             "nextPage": ".pager .pager__item--next a",
             "dynamicFields": {
