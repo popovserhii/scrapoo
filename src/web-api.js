@@ -5,7 +5,8 @@ import {HttpClient} from 'aurelia-http-client';
 export class WebAPI {
 
   constructor(client) {
-    let url = window.location.protocol + "//api." + window.location.host;
+    //let url = window.location.protocol + "//api." + window.location.host;
+    let url = window.location.protocol + "//" + window.location.host;
     client
       .configure(x => {
         x.withBaseUrl(url);
