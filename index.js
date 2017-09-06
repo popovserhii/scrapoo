@@ -10,10 +10,10 @@ app.use('/data', express.static('data'));
 
 // Add headers
 
-#var server = app.listen(app.get('port'), function() {
-#  console.log('Express server listening on port ' + server.address().port);
-#});
-#server.timeout = 300000;
+//var server = app.listen(app.get('port'), function() {
+//  console.log('Express server listening on port ' + server.address().port);
+//});
+//server.timeout = 300000;
 
 
 app.get('/api/sources', (request, response) => {
@@ -40,6 +40,7 @@ app.get('/api/sources', (request, response) => {
 });
 
 app.get('/api/sources/:source', async (request, response) => {
+  try {
   let sourceName = request.params.source;
   let scrapedFile = await com.scrap(sourceName);
   scrapedFile = scrapedFile.replace(/\\/g,"/");
@@ -54,6 +55,9 @@ app.get('/api/sources/:source', async (request, response) => {
   };
 
   response.json(source);
+  } catch(e) {
+    console.log(e.message + ' ' + e.stack);
+  }
 });
 
 
