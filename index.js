@@ -14,7 +14,14 @@ app.use('/data', express.static('data'));
 //  console.log('Express server listening on port ' + server.address().port);
 //});
 //server.timeout = 300000;
+//var timeout = require('connect-timeout'); //express v4
 
+//app.use(timeout(120 * 60 * 1000));
+//app.use(haltOnTimedout);
+
+//function haltOnTimedout(req, res, next){
+//  if (!req.timedout) next();
+//}
 
 app.get('/api/sources', (request, response) => {
   let sources = ['cheapbasket', 'supermarketcy', 'supermarketcy-en'];
@@ -61,10 +68,18 @@ app.get('/api/sources/:source', async (request, response) => {
 });
 
 
-app.listen(port, (err) => {
+let server = app.listen(port, (err) => {
   if (err) {
     return console.log('something bad happened', err)
   }
 
   console.log(`server is listening on ${port}`)
+});
+
+//server.listen(120 * 60 * 1000);
+
+server.on('connection', function(socket) {
+  console.log("A new connection was made by a client.");
+  socket.setTimeout(120 * 60 * 1000); 
+  // 30 second timeout. Change this as you see fit.
 })
