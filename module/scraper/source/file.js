@@ -1,71 +1,72 @@
-let fs = require('fs');
-let d3 = require('d3-dsv');
-let _ = require('lodash');
-let useragent = require('random-useragent');
-let Excel = require('scraper/source/driver/excel');
-let Csv = require('scraper/output/csv');
-let HotlineUa = require('scraper/adapter/hotline-ua');
-let AlmondsCom = require('scraper/adapter/almonds-com');
-let Preprocessor = require('scraper/preprocessor');
+//const fs = require('fs');
+//const d3 = require('d3-dsv');
+const _ = require('lodash');
+const useragent = require('random-useragent');
+const Excel = require('scraper/source/driver/excel');
+//const Csv = require('scraper/output/csv');
+//const HotlineUa = require('scraper/adapter/hotline-ua');
+//const Preprocessor = require('scraper/preprocessor');
+const Abstract = require('scraper/source/abstract');
 
-class File {
+
+class File extends Abstract {
   constructor(nightmare, config) {
-    this.nightmare = nightmare;
-    this._config = config || {};
-    this.crawlerQueue = [];
-    this.searchKeys = [];
+    super(nightmare, config);
+    //this.nightmare = nightmare;
+    //this._config = config || {};
+    //this.searchKeys = [];
     //Site.nextUrl = '';
     //this.filePath = 'data/shop-it.csv';
 
-    this._row = null;
-    this._headMap = null;
-    this._adapters = null;
-    this._output = null;
-    this._outputProblem = null;
-    this._preprocessor = null;
+    //this._row = null;
+    //this._headMap = null;
+    //this._adapters = null;
+    //this._output = null;
+    //this._outputProblem = null;
+    //this._preprocessor = null;
 
-    this.logger = fs.createWriteStream('data/error.log', {
-      flags: 'a', // 'a' means appending (old data will be preserved)
-      encoding: 'utf8',
-    })
+    //this.logger = fs.createWriteStream('data/error.log', {
+    //  flags: 'a', // 'a' means appending (old data will be preserved)
+    //  encoding: 'utf8',
+    //})
 
   }
 
-  get config() {
-    return this._config;
-  }
+  //get config() {
+  //  return this._config;
+  //}
 
   /**
    * Get current row
    * @returns json
    */
-  get row() {
+  /*get row() {
     return this._row;
-  }
+  }*/
 
   /**
    * Get column names to index
    * @returns json
    */
-  get headMap() {
+  /*get headMap() {
     return this._headMap;
-  }
+  }*/
 
-  getNamedField(name) {
+  /*getNamedField(name) {
     let headName = this.config.source.fields[name];
     let columnIndex = this.headMap[headName];
 
     return this.row[columnIndex];
-  }
+  }*/
 
-  getCrawler(config) {
+  /*getCrawler(config) {
     let Adapter = require('scraper/adapter/' + config.name);
     let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
 
     return adapter;
-  }
+  }*/
 
-  set adapter(adapter) {
+  /*set adapter(adapter) {
     this._adapters = adapter;
 
     return this;
@@ -114,14 +115,15 @@ class File {
     }
 
     return this._preprocessor;
-  }
+  }*/
 
   async start() {
-    //console.log(this.config);
     //let filename = 'data/laptops.xlsx';
     let filename = this.config.source.path;
     // read from a file
     let excel = new Excel();
+
+
     excel.source = filename;
     let firstRow = await excel.firstRow();
     let lastRow = await excel.lastRow();
@@ -140,7 +142,6 @@ class File {
     //console.log(head);
     //console.log(this._headMap);
 
-
     // iterate through rows data
     for (let i = (firstRow + 1); i <= lastRow; i++) {
       let searchable = [];
@@ -149,6 +150,10 @@ class File {
       for (let k = 0; k < searchKeys.length; k++) {
         //this._row = await excel.read(i);
         this._row = await excel.read(i);
+
+        //console.log(this._row);
+
+
         let name = searchKeys[k];
         let cell = this._row[this._headMap[name]];
 
@@ -162,14 +167,13 @@ class File {
       }
     }
 
-    //console.log(firstRow);
     //this.process();
 
     //this.logger.end();
   }
 
 
-  async process(searchable) {
+  /*async process(searchable) {
     //console.log(searchable);
     //return;
     try {
@@ -196,41 +200,7 @@ class File {
       //console.log(e.stack);
       this.log(e.message + ' ' + e.stack);
     }
-  }
-
-  async scanList() {
-    let that = this;
-    let options = this.config.options;
-
-    let links = await this.nightmare.evaluate(function(iterateOver) {
-      return Array.from(document.querySelectorAll(iterateOver)).map(function(a) {
-        return a.href;
-      });
-    }, options.iterateOver);
-
-
-
-    const series = links.reduce(async (queue, link) => {
-
-      let searches = await this.nightmare
-        .goto(link)
-        .wait()
-        .evaluate(function () {
-          let searchable = []; // array of searchable values on hotline and etc
-          //that.scan(Site.links.shift());
-
-          return searchable;
-        });
-
-      const dataArray = await queue;
-      dataArray.push(await getAddress(link));
-      return dataArray;
-    }, Promise.resolve([]));
-  }
-
-  log(message) {
-    this.logger.write(new Date().toISOString() + '\t' + message + '\n');
-  }
+  }*/
 }
 
 module.exports = File;

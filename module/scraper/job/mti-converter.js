@@ -19,8 +19,16 @@ class MtiConverter {
 
   async run() {
     await this._convert();
-    this._worksheet.commit(); // Need to commit the changes to the worksheet
-    this._workbook.commit(); // Finish the workbook
+    //this._worksheet.commit(); // Need to commit the changes to the worksheet
+
+    await this._workbook.csv
+      .writeFile('data/converted.csv')
+      /*.then(function() {
+        console.log('CSV Saved!');
+        // done
+      })*/;
+
+    //this._workbook.commit(); // Finish the workbook
   }
 
   async _convert() {
@@ -36,8 +44,11 @@ class MtiConverter {
       } else {
         if (1 !== rowNumber) {
           let cell = row.getCell(1);
-          cell.value = category + '/' + cell.value + ' :: 1 :: 0 :: 1 || 4';
+          cell.value = category + '/' + cell.value + ' :: 1 :: 1 :: 1 || 4';
         }
+        //console.log(row.getCell(0).value);
+        console.log(row.values);
+
         writer.addRow(row.values);
       }
     });
@@ -62,9 +73,10 @@ class MtiConverter {
       useSharedStrings: true // Default
     };
 
-    this._workbook = new Excel.stream.xlsx.WorkbookWriter(options);
-    this._workbook.addWorksheet("MTI");
-    this._worksheet = this._workbook.getWorksheet("MTI");
+    //this._workbook = new Excel.stream.xlsx.WorkbookWriter(options);
+    this._workbook = new Excel.Workbook();
+    this._workbook.addWorksheet('MTI');
+    this._worksheet = this._workbook.getWorksheet('MTI');
 
     return this._worksheet
   }

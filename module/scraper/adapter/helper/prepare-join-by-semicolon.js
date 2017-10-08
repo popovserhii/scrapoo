@@ -7,7 +7,9 @@ class PrepareJoinBySemicolon extends PrepareAbstract {
   }
 
   prepare(relative) {
-    //console.log(relative);
+    if (typeof relative === 'string') {
+      relative = [relative];
+    }
     return relative.join(';');
   }
 }

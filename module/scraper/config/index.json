@@ -2,35 +2,39 @@
   "scraper": {
     "catalog": [
       {
+        "jobs": {
+          "before": [
+            "scraper/job/mti-converter"
+          ],
+          "after": []
+        },
+
         "source": {
-          "type": "site",
-          "name": "cheapbasket",
-          "path": "http://cheapbasket.com.cy",
-          "selector": "#my_menu > div > a",
-          "options": {
-            "iterate": "#right_column .listed_product .img_cont + div a",
-            "nextPage": ".paging .prev_next:last-child",
-            "dynamicFields": {
-              "Category": {"selector": ".breadcrumbs .B_crumb:nth-child(2) a"},
-              "Sub-category": {"selector": ".breadcrumbs .B_crumb:nth-child(3) a"}
-            }
-          },
+          "type": "file",
+          "path": "data/converted.csv",
+          "searchKeys": ["Код произв", "Модель"],
           "fields": {
-            "category": "Category",
-            "sub-category": "Sub-category"
+            "categories": "Категория",
+            "sku": "MTI код",
+            "name": "Модель",
+            "short_description": "Наименование",
+            "manufacturer": "Производитель",
+            "price": "Розн. цена (грн.)"
           }
         },
         "crawler": [
           {
-            "name": "default",
+            "name": "ktc-ua",
+            "url": "https://ktc.ua/search/?q=%s",
             "group": {
-              "selector": ".right_column",
+              "selector": ".cardPage",
               "fields": {
-                "Product ID": {"selector": ".product_imgs input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
-                "Product Name": {"selector": "#right_column .offer_title"},
-                "Product Details": {"selector": ".product_descr"},
-                "Price": {"selector": "#new_price", "__filter": ["price"]},
-                "Photo url": {"selector": "#pr_img", "__output": {"attr": "src"}, "__prepare": ["base-url"]}
+                "image": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "small_image": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "thumbnail": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "media_gallery": {"selector": "#slideMainImg a", "__output": {"attr": "href"}, "__prepare": ["base-url", "join-by-semicolon"]},
+                "description": {"selector": ".description-text article"},
+                "specifications": {"selector": ".blockFullCharacteristics", "__output": {"as": "html"}}
               }
             }
           }
@@ -38,124 +42,33 @@
 
         "output": {
           "type": "csv",
-          "path": "data/scraped/cheapbasket/cheapbasket.csv"
+          "path": "data/products.csv"
         },
 
-        "preprocessor": {
-          "fields": {
-            "Product ID": "",
-            "Item url": "$crawler.currUrl",
-            "Category": "$source.category",
-            "Sub-category": "$source.sub-category"
-          }
-        }
-      },
-
-      {
-        "source": {
-          "name": "supermarketcy",
-          "type": "site",
-          "path": "https://www.supermarketcy.com.cy/artopoieio",
-          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
-          "options": {
-            "nextPage": ".pager .pager__item--next a",
-            "dynamicFields": {
-              "Category": {"selector": ".breadcrumb li:first-child a"},
-              "Sub-category": {"selector": ".breadcrumb li:nth-child(2)"},
-              "Sub-sub-category": {"selector": ".breadcrumb li:nth-child(3)"}
-            }
-          },
-          "fields": {
-            "category": "Category",
-            "sub-category": "Sub-category",
-            "sub-sub-category": "Sub-sub-category"
-          }
-        },
-        "crawler": [
-          {
-            "name": "default",
-            "group": {
-              "selector": "#findastic-browse .views-row",
-              "fields": {
-                "Product ID": {"selector": ".commerce-add-to-cart input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
-                "Item url": {"selector": ".views-field-title a", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
-                "Product Name": {"selector": ".views-field-title a"},
-                "Price": {"selector": ".views-field-commerce-price .field-content", "__output": {"as": "html"}, "__filter": ["text-node", "price"]},
-                "Photo url": {"selector": ".views-field-field-product-image .field-content a:nth-child(2)", "__output": {"attr": "href"}}
-              }
-            }
-          }
-        ],
-
-        "output": {
+        "problemOutput": {
           "type": "csv",
-          "path": "data/scraped/supermarketcy/supermarketcy.csv"
+          "path": "data/shop-it-problem.csv"
         },
 
         "preprocessor": {
           "fields": {
-            "Product ID": "",
-            "Item url": "",
-            "Category": "$source.category",
-            "Sub-category": "$source.sub-category",
-            "Sub-sub-category": "$source.sub-sub-category"
-          }
-        }
-      },
-
-      {
-        "source": {
-          "name": "supermarketcy-en",
-          "type": "site",
-          "path": "https://www.supermarketcy.com.cy/en/artopoieio",
-          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
-          "options": {
-            "nextPage": ".pager .pager__item--next a",
-            "dynamicFields": {
-              "Category": {"selector": ".breadcrumb li:first-child a"},
-              "Sub-category": {"selector": ".breadcrumb li:nth-child(2)"},
-              "Sub-sub-category": {"selector": ".breadcrumb li:nth-child(3)"}
-            }
-          },
-          "fields": {
-            "category": "Category",
-            "sub-category": "Sub-category",
-            "sub-sub-category": "Sub-sub-category"
-          }
-        },
-        "crawler": [
-          {
-            "name": "default",
-            "group": {
-              "selector": "#findastic-browse .views-row",
-              "fields": {
-                "Product ID": {"selector": ".commerce-add-to-cart input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
-                "Item url": {"selector": ".views-field-title a", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
-                "Product Name": {"selector": ".views-field-title a"},
-                "Price": {"selector": ".views-field-commerce-price .field-content", "__output": {"as": "html"}, "__filter": ["text-node", "price"]},
-                "Photo url": {"selector": ".views-field-field-product-image .field-content a:nth-child(2)", "__output": {"attr": "href"}}
-              }
-            }
-          }
-        ],
-
-        "output": {
-          "type": "csv",
-          "path": "data/scraped/supermarketcy-en/supermarketcy-en.csv"
-        },
-
-        "preprocessor": {
-          "fields": {
-            "Product ID": "",
-            "Item url": "",
-            "Category": "$source.category",
-            "Sub-category": "$source.sub-category",
-            "Sub-sub-category": "$source.sub-sub-category"
+            "attribute_set": "Default",
+            "store": "admin",
+            "status": 1,
+            "visibility": 4,
+            "is_in_stock": 1,
+            "qty": 50,
+            "root_category": "Root Catalog",
+            "categories": "$source.categories",
+            "type": "simple",
+            "sku": "$source.sku",
+            "name": "$source.name",
+            "short_description": "$source.short_description",
+            "manufacturer": "$source.manufacturer",
+            "price": "$source.price"
           }
         }
       }
-
-
     ]
   }
 }

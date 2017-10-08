@@ -4,14 +4,15 @@
       {
         "source": {
           "type": "site",
+          "name": "cheapbasket",
           "path": "http://cheapbasket.com.cy",
-          "selector": ".sdmenu .collapsed span a",
+          "selector": "#my_menu > div > a",
           "options": {
-            "iterate": "#right_column .category_cont a",
+            "iterate": "#right_column .listed_product .img_cont + div a",
             "nextPage": ".paging .prev_next:last-child",
             "dynamicFields": {
               "Category": {"selector": ".breadcrumbs .B_crumb:nth-child(2) a"},
-              "Sub-category": {"selector": "#right_column .offer_title"}
+              "Sub-category": {"selector": ".breadcrumbs .B_crumb:nth-child(3) a"}
             }
           },
           "fields": {
@@ -23,12 +24,13 @@
           {
             "name": "default",
             "group": {
-              "selector": "#right_column .listed_product",
+              "selector": ".right_column",
               "fields": {
-                "Product ID": {"selector": ".quantity input", "__output": {"attr": "id"}, "__filter": ["number"]},
-                "Product Name": {"selector": "#name"},
-                "Price": {"selector": "#price", "__filter": ["price"]},
-                "Photo url": {"selector": ".img_cont img", "__output": {"attr": "src"}, "__prepare": ["base-url"]}
+                "Product ID": {"selector": ".product_imgs input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
+                "Product Name": {"selector": "#right_column .offer_title"},
+                "Product Details": {"selector": ".product_descr"},
+                "Price": {"selector": "#new_price", "__filter": ["price"]},
+                "Photo url": {"selector": "#pr_img", "__output": {"attr": "src"}, "__prepare": ["base-url"]}
               }
             }
           }
@@ -36,17 +38,124 @@
 
         "output": {
           "type": "csv",
-          "path": "data/cheapbasket.csv"
+          "path": "data/scraped/cheapbasket/cheapbasket.csv"
         },
 
         "preprocessor": {
           "fields": {
-            "Product ID": "0",
+            "Product ID": "",
+            "Item url": "$crawler.currUrl",
             "Category": "$source.category",
             "Sub-category": "$source.sub-category"
           }
         }
+      },
+
+      {
+        "source": {
+          "name": "supermarketcy",
+          "type": "site",
+          "path": "https://www.supermarketcy.com.cy/artopoieio",
+          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
+          "options": {
+            "nextPage": ".pager .pager__item--next a",
+            "dynamicFields": {
+              "Category": {"selector": ".breadcrumb li:first-child a"},
+              "Sub-category": {"selector": ".breadcrumb li:nth-child(2)"},
+              "Sub-sub-category": {"selector": ".breadcrumb li:nth-child(3)"}
+            }
+          },
+          "fields": {
+            "category": "Category",
+            "sub-category": "Sub-category",
+            "sub-sub-category": "Sub-sub-category"
+          }
+        },
+        "crawler": [
+          {
+            "name": "default",
+            "group": {
+              "selector": "#findastic-browse .views-row",
+              "fields": {
+                "Product ID": {"selector": ".commerce-add-to-cart input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
+                "Item url": {"selector": ".views-field-title a", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "Product Name": {"selector": ".views-field-title a"},
+                "Price": {"selector": ".views-field-commerce-price .field-content", "__output": {"as": "html"}, "__filter": ["text-node", "price"]},
+                "Photo url": {"selector": ".views-field-field-product-image .field-content a:nth-child(2)", "__output": {"attr": "href"}}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/scraped/supermarketcy/supermarketcy.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "Product ID": "",
+            "Item url": "",
+            "Category": "$source.category",
+            "Sub-category": "$source.sub-category",
+            "Sub-sub-category": "$source.sub-sub-category"
+          }
+        }
+      },
+
+      {
+        "source": {
+          "name": "supermarketcy-en",
+          "type": "site",
+          "path": "https://www.supermarketcy.com.cy/en/artopoieio",
+          "selector": ["#block-system-main-menu .submenu .menu .level-2 > a", "#block-system-main-menu .level-2 .menu .level-3 > a"],
+          "options": {
+            "nextPage": ".pager .pager__item--next a",
+            "dynamicFields": {
+              "Category": {"selector": ".breadcrumb li:first-child a"},
+              "Sub-category": {"selector": ".breadcrumb li:nth-child(2)"},
+              "Sub-sub-category": {"selector": ".breadcrumb li:nth-child(3)"}
+            }
+          },
+          "fields": {
+            "category": "Category",
+            "sub-category": "Sub-category",
+            "sub-sub-category": "Sub-sub-category"
+          }
+        },
+        "crawler": [
+          {
+            "name": "default",
+            "group": {
+              "selector": "#findastic-browse .views-row",
+              "fields": {
+                "Product ID": {"selector": ".commerce-add-to-cart input[name='product_id']", "__output": {"attr": "value"}, "__filter": ["number"]},
+                "Item url": {"selector": ".views-field-title a", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "Product Name": {"selector": ".views-field-title a"},
+                "Price": {"selector": ".views-field-commerce-price .field-content", "__output": {"as": "html"}, "__filter": ["text-node", "price"]},
+                "Photo url": {"selector": ".views-field-field-product-image .field-content a:nth-child(2)", "__output": {"attr": "href"}}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/scraped/supermarketcy-en/supermarketcy-en.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "Product ID": "",
+            "Item url": "",
+            "Category": "$source.category",
+            "Sub-category": "$source.sub-category",
+            "Sub-sub-category": "$source.sub-sub-category"
+          }
+        }
       }
+
+
     ]
   }
 }

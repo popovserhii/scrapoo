@@ -14,8 +14,6 @@ class Site extends Abstract{
     //Site.nextUrl = '';
     //this.filePath = 'data/shop-it.csv';
 
-    this._row = {};
-    this._headMap = null;
     this._adapters = null;
   }
 
@@ -23,29 +21,6 @@ class Site extends Abstract{
     return this._config;
   }
 
-  /**
-   * Get current row
-   * @returns json
-   */
-  get row() {
-    return this._row;
-  }
-
-  /**
-   * Get column names to index
-   * @returns json
-   */
-  get headMap() {
-    return this._headMap;
-  }
-
-  getNamedField(name) {
-    let headName = this.config.source.fields[name];
-    //let columnIndex = this.headMap[headName];
-
-    //return this.row[columnIndex];
-    return this.row[headName];
-  }
 
   async start() {
     let siteName = this.config.source.path;
@@ -116,7 +91,7 @@ class Site extends Abstract{
     }
   }
 
-  async _prepareFields() {
+  async prepareFields() {
     let response = await this.nightmare
       .evaluate(function () {
         return document.body.innerHTML

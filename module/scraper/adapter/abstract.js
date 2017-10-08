@@ -79,7 +79,7 @@ class Abstract {
 
         fields[name] = this.getValue(group.find(fieldConfig.selector));
 
-        //console.log('fields[name]', fields[name], name, fieldConfig.selector, group.find(fieldConfig.selector));
+        //console.log('fields[name]', fields[name], name, fieldConfig.selector/*, group.find(fieldConfig.selector)*/);
 
 
         fields[name] = this._processFilters(fields[name]);
@@ -140,19 +140,30 @@ class Abstract {
     let fieldConfig = this.currFieldConfig;
     let val = undefined;
 
-    _.each(fieldConfig.__output, (name, key) => {
-      if ('attr' === key) {
-        val = elm.attr(name);
-      } else if ('as' === key) {
-        val = this._getOutputAs(elm, name);
+    //console.log(elm.length);
+
+    if (elm.length > 1) {
+      let values = [];
+      elm.each((i, e) => {
+        values.push(this.getValue(this.$(e)));
+      });
+
+      return values;
+    } else {
+      _.each(fieldConfig.__output, (name, key) => {
+        if ('attr' === key) {
+          val = elm.attr(name);
+        } else if ('as' === key) {
+          val = this._getOutputAs(elm, name);
+        }
+      });
+
+      if (undefined === val) {
+        val = this._getOutputAs(elm, 'text');
       }
-    });
 
-    if (undefined === val) {
-      val = this._getOutputAs(elm, 'text');
+      return val;
     }
-
-    return val;
   }
 
   _getOutputAs(elm, type) {

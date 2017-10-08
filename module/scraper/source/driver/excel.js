@@ -95,7 +95,7 @@ class Excel extends Abstract {
   async _xlBook() {
     if (!this.xlBook) {
       let workbook = new ExcelJs.Workbook();
-      this.xlBook = await workbook.xlsx.readFile(this.source)
+      this.xlBook = await workbook.csv.readFile(this.source)
         .then(function () {
           return workbook;
         });

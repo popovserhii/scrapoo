@@ -1,6 +1,7 @@
 let fs = require('fs');
 let _ = require('lodash');
 let Csv = require('scraper/output/csv');
+let Problem = require('scraper/output/problem');
 let URL = require('url');
 let PrepareBaseUrl = require('scraper/adapter/helper/prepare-base-url');
 let Preprocessor = require('scraper/preprocessor');
@@ -15,6 +16,10 @@ class Abstract {
     this._outputProblem = null;
     this._preprocessor = null;
     this._nextUrl = null;
+
+    this._row = {};
+    this._headMap = null;
+
 
     this.location = URL.parse(config.source.path);
     this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
@@ -47,6 +52,35 @@ class Abstract {
     return this._config;
   }
 
+  /**
+   * Get column names to index
+   * @returns json
+   */
+  get headMap() {
+    return this._headMap;
+  }
+
+  /**
+   * Get current row
+   * @returns json
+   */
+  get row() {
+    return this._row;
+  }
+
+  getNamedField(name) {
+    let headName = this.config.source.fields[name];
+    let columnIndex = this.headMap[headName];
+
+    //console.log(name);
+    //console.log(headName);
+    //console.log(columnIndex);
+    //console.log(this.headMap);
+    //console.log(this.row);
+    //return this.row[headName];
+    return this.row[columnIndex];
+  }
+
   getCrawler(config) {
     let Adapter = require('scraper/adapter/' + config.name);
     let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
@@ -76,7 +110,8 @@ class Abstract {
 
   get outputProblem() {
     if (!this._outputProblem) {
-      this._outputProblem = new Csv('data/shop-it-problem.csv');
+      //this._outputProblem = new Csv(this.config.problemOutput);
+      this._outputProblem = new Problem(this.config.problemOutput);
     }
 
     return this._outputProblem;
@@ -106,15 +141,23 @@ class Abstract {
   async process(searchable) {
     try {
       for (let key in this.config.crawler) {
+
+        console.log(searchable);
         // here must be iteration though config.crawler
         let adapter = this._crawler = this.getCrawler(this.config.crawler[key]);
         let fields = await adapter.scan(searchable);
 
-        if (_.size(fields)) {
+        console.log(fields);
+        console.log('--------++++++++++---------');
+
+        if (fields && _.size(fields)) {
           // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
           // а потрібно додати змінні в _row для категорії і підкатегорії.
           // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
-          await this._prepareFields();
+          if ('Site' === this.constructor.name) {
+            await this.prepareFields();
+          }
+
           fields = this.preprocessor.process(fields);
           await this.output.send(fields);
         } else {
@@ -131,7 +174,7 @@ class Abstract {
       //this.output.file.end(); // here is problem "write after end Error: write after end"
       }
     } catch (e) {
-      //console.log(e.stack);
+      console.log(e.stack);
       this.log(e.message + ' ' + e.stack);
     }
   }
@@ -140,7 +183,7 @@ class Abstract {
     let options = this.config.source.options;
     let nextExist = false;
 
-    if (options.nextPage) {
+    if (options && options.nextPage) {
       nextExist = await this.nightmare.visible(options.nextPage);
       if (nextExist) {
         this._nextUrl = await this.nightmare.evaluate(function(nextPageSelector) {
