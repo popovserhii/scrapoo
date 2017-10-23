@@ -4,29 +4,29 @@ const Excel = require('exceljs');
 class MtiConverter {
   constructor(source) {
     this.source = source;
-    this._filename = '';
+    this._source = '';
   }
 
   async getFilename() {
-    if (!this._filename) {
-      this._filename = await globby(['data/mti_*.xlsx']).then(paths => {
+    if (!this._source) {
+      this._source = await globby(['data/mti_*.xlsx']).then(paths => {
         return paths.shift();
       });
     }
 
-    return this._filename;
+    return this._source;
   }
 
   async run() {
     await this._convert();
     //this._worksheet.commit(); // Need to commit the changes to the worksheet
 
-    await this._workbook.csv
+    await this._wb.csv
       .writeFile('data/converted.csv')
-      /*.then(function() {
-        console.log('CSV Saved!');
-        // done
-      })*/;
+    /*.then(function() {
+     console.log('CSV Saved!');
+     // done
+     })*/;
 
     //this._workbook.commit(); // Finish the workbook
   }
@@ -74,9 +74,9 @@ class MtiConverter {
     };
 
     //this._workbook = new Excel.stream.xlsx.WorkbookWriter(options);
-    this._workbook = new Excel.Workbook();
-    this._workbook.addWorksheet('MTI');
-    this._worksheet = this._workbook.getWorksheet('MTI');
+    this._wb = new Excel.Workbook();
+    this._wb.addWorksheet('MTI');
+    this._worksheet = this._wb.getWorksheet('MTI');
 
     return this._worksheet
   }

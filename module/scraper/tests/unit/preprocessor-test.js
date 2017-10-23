@@ -33,7 +33,7 @@ describe('Preprocessor', () => {
     };
 
     let file = new File({}, configSource);
-    file._headMap = {'МТІ код': 2, 'Артикул': 4};
+    file._headerMap = {'МТІ код': 2, 'Артикул': 4};
     file._row = [1, 'Test item', 'SUPER_CODE', 'enable', 'SUPER_ARTICLE'];
 
     let pre = new Preprocessor(file, config);
@@ -47,6 +47,70 @@ describe('Preprocessor', () => {
         "sku": "SUPER_CODE",
         "image": "http://example.com/img.jpg",
         "short_name": "Mini item name"
+      });
+  });
+
+  it('process: should replace array variables pattern to values', () => {
+    let config = { // preprocessor config
+      "fields": {
+        "categories": {"value": ["$source.category", "$source.subcategory"]},
+        //"categories": {"value": ["$source.category", "$source.subcategory"], "__prepare": ["prepare-join-categories-magento"]},
+      }
+    };
+
+    let configSource = {
+      "source": {
+        "fields": {
+          "category": "Категорія",
+          "subcategory": "Під категорія"
+        }
+      }
+    };
+
+    let fields = {};
+
+    let file = new File({}, configSource);
+    file._headerMap = {'Категорія': 1, 'Під категорія': 3};
+    file._row = ['Test item', 'IT ACCESSORIES', 'enable', 'NOTEBOOK'];
+
+    let pre = new Preprocessor(file, config);
+    fields = pre.process(fields);
+
+    expect(fields)
+      .to.deep.equal({
+        "categories": ['IT ACCESSORIES', 'NOTEBOOK'],
+      });
+  });
+
+  it('process: should replace array variables pattern and process with helper', () => {
+    let config = { // preprocessor config
+      "fields": {
+        //"categories": {"value": ["$source.category", "$source.subcategory"]},
+        "categories": {"value": ["$source.category", "$source.subcategory"], "__prepare": ["join-categories-magento"]},
+      }
+    };
+
+    let configSource = {
+      "source": {
+        "fields": {
+          "category": "Категорія",
+          "subcategory": "Під категорія"
+        }
+      }
+    };
+
+    let fields = {};
+
+    let file = new File({}, configSource);
+    file._headerMap = {'Категорія': 1, 'Під категорія': 3};
+    file._row = ['Test item', 'IT ACCESSORIES', 'enable', 'NOTEBOOK'];
+
+    let pre = new Preprocessor(file, config);
+    fields = pre.process(fields);
+
+    expect(fields)
+      .to.deep.equal({
+        "categories": "IT ACCESSORIES:: 1 :: 1 :: 1 || 4/NOTEBOOK:: 1 :: 1 :: 1 || 4",
       });
   });
 });

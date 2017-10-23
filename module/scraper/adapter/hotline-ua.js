@@ -2,141 +2,137 @@ const cheerio = require('cheerio');
 let URL = require('url');
 let _ = require('lodash');
 let s = require('sprintf-js');
+const Abstract = require('scraper/adapter/abstract');
 
+class HotlineUa  extends Abstract {
 
-class HotlineUa {
   constructor(nightmare, config) {
-    this.nightmare = nightmare;
-    this.config = config;
-    this.siteUrl = 'http://hotline.ua';
-    this.searchUrl = 'http://hotline.ua/sr/autocomplete/?term=%s';
+    super(nightmare, config);
     this.$ = {};
-    this.helpers = [];
-    this.currField = '';
+    //this.helpers = [];
+    //this.currField = '';
   }
 
-  get currFieldConfig() {
+  /*get currFieldConfig() {
     return this.config.fields[this.currField];
-  }
+  }*/
 
 
   async scan(searchable) {
+    this.location = URL.parse(this.config.url);
+
     for (let key of searchable) {
       let searchKey = encodeURIComponent(key);
+      let searchUrl = s.sprintf(this.config.url, searchKey);
+
+      //console.log('Start searchable iterate...');
+      await this.nightmare.goto(searchUrl);
+
+      await this.resolveCaptcha();
+      //console.log('Pass captcha...');
 
       let response = await this.nightmare
-        .goto(s.sprintf(this.searchUrl, searchKey))
+        //.goto(searchUrl)
         //.goto('http://hotline.ua/sr/autocomplete/?term=MPXQ2')
         .wait()
         .evaluate(function () {
-          return JSON.parse(document.body.innerText)
+          //return JSON.parse(document.body.innerText)
+          //return document.body.innerText
+          return document.body.innerHTML
         });
 
-      console.log(searchKey);
 
-      if (!response.length) {
+      //response = JSON.parse(response);
+      //console.log('---------------00000000000-------------');
+      //console.log(this.config);
+      //console.log(response);
+
+      let $ = this.$ = cheerio.load(response);
+      let href = $('.description-box .description-box-in + div > a, .product-item .info-description .h4 a').first().attr('href');
+
+      //console.log(href);
+
+      if (!href || !href.length) {
         continue;
       }
 
+      //console.log(this.config)
+
       // take only first element from response
-      let url = this.siteUrl + response[0].url;
-      return this.getFields(url);
+      //let url = this.location.href + href;
+      let url = this.location.protocol + "//" + this.location.host + href;
+
+      let wait = Math.floor(Math.random() * (4 - 3 + 1)) + 2; // dynamic wait: 2-8 seconds
+      let body = await this.nightmare
+        .goto(url)
+        .click(this.config.action.click)
+        .wait(wait * 1000)
+        //.wait('#r1-0 a.result__a')
+        .evaluate(function () {
+          return document.body.innerHTML;
+        });
+
+
+      //this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
+      //console.log(body);
+
+      this.configHandler.getHelper('base-url', 'prepare').setOption('location', this.location);
+
+      return this.getFields(body);
     }
 
     return false;
   }
 
-  async getFields(url) {
-    this.location = URL.parse(url);
-    let body = await this.nightmare
-      .goto(url)
-      .wait()
+  async resolveCaptcha() {
+    // first step try to click on recaptcha
+
+    //console.log('hotline-ua83');
+
+    /*let currHref = await this.nightmare.evaluate(() => {
+      return window.location.href;
+    });*/
+    //let currHref = await this.nightmare.goto('http://hotline.ua').exists('body');
+    /*let currHref = await this.nightmare.wait(100).url();
+    if (!currHref) {
+      return true;
+    }*/
+
+
+    let captchaExists = await this.nightmare.exists('#g-recaptcha');
+
+    //console.log('hotline-ua89', captchaExists);
+
+    if (!captchaExists) {
+      return;
+    }
+
+    let url = await this.nightmare.url();
+    //console.log('hotline-ua106', url);
+
+
+    //try {
+    let result = await this.nightmare
+      .wait(4000)
       .evaluate(function () {
-        return document.body.innerHTML;
+        // @link https://stackoverflow.com/a/37690757/1335142
+        let iframe = document.querySelector('#g-recaptcha iframe');
+        let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDocument.querySelector('#recaptcha-anchor').click();
       });
 
-    let $ = this.$ = cheerio.load(body);
+    //console.log('hotline-ua126', result);
 
-    let fields = {};
-    for (let name in this.config.fields) {
-      this.currField = name;
-      let fieldConfig = this.currFieldConfig;
-      fields[name] = $(fieldConfig.selector).map((i, element) => {
-        let elm = $(element);
-        let val = this.getValue(elm);
+    captchaExists = await this.nightmare.wait(5000).exists('#g-recaptcha');
 
-        //console.log(val);
-
-        return val;
-      }).get();
-
-      //console.log(fields[name]);
-      //_.each(fields, (val, name) => {
-        if (fieldConfig['__filter'] !== undefined) {
-          for (let i = 0; i < fieldConfig['__filter'].length; i++) {
-            let filter = fieldConfig['__filter'][i];
-            fields[name] = this.getHelper(filter, 'filter').prepare(fields[name]);
-          }
-        }
-
-        if (fieldConfig['__prepare'] !== undefined) {
-          for (let i = 0; i < fieldConfig['__prepare'].length; i++) {
-            let prepare = fieldConfig['__prepare'][i];
-            fields[name] = this.getHelper(prepare, 'prepare').prepare(fields[name]);
-          }
-        }
-      //});
-
-      this.currField = '';
+    // second step if recaptcha hasn't been resolved wait for human
+    while (captchaExists) {
+      console.log('Waiting human interaction...');
+      captchaExists = await this.nightmare.wait(10000).exists('#g-recaptcha');
     }
 
-    return fields;
-  }
+    //console.log('Something went wrong...');
 
-  getValue(elm) {
-    let fieldConfig = this.currFieldConfig;
-    let val = undefined;
-
-    _.each(fieldConfig.__output, (name, key) => {
-      if ('attr' === key) {
-        val = elm.attr(name);
-      } else if ('as' === key) {
-        val = this._getOutputAs(elm, name);
-      }
-    });
-
-    if (undefined === val) {
-      val = this._getOutputAs(elm, 'text');
-    }
-
-    return val;
-  }
-
-  _getOutputAs(elm, type) {
-    return ('html' === type)
-      ? this.$.html(elm).replace(/>\s+</g, '><').replace(/\s\s+/g, ' ') // @toto Improve regexp
-      : elm.text().trim();
-  }
-
-  getHelper(name, pool) {
-    let key = pool + '-' + name;
-    if (this.helpers[key] !== undefined) {
-      return this.helpers[key];
-    }
-
-    //let config = this.config;
-    //let helperClass = key;
-    //if (this.helpers[pool][name] !== undefined) {
-    //  helperClass = this.helpers[pool][name];
-    //} else if (config['helpers'][pool][name] !== undefined) {
-    //if (config.fields[pool][name] !== undefined) {
-    //  helperClass += config.fields[pool][name];
-    //} else {
-    //  throw new Error(s.sprintf('Import helper [%s:%s] not exists', pool, name));
-    //}
-
-    let HelperClass = require('./helper/' + key);
-    return this.helpers[key] = new HelperClass(this);
   }
 }
 

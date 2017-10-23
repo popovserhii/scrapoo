@@ -4,6 +4,8 @@ const _ = require('lodash');
 const cheerio = require('cheerio');
 const useragent = require('random-useragent');
 const Abstract = require('scraper/source/abstract');
+const URL = require('url');
+const PrepareBaseUrl = require('scraper/adapter/helper/prepare-base-url');
 
 class Site extends Abstract{
   constructor(nightmare, config) {
@@ -14,7 +16,10 @@ class Site extends Abstract{
     //Site.nextUrl = '';
     //this.filePath = 'data/shop-it.csv';
 
-    this._adapters = null;
+    this.location = URL.parse(config.source.path);
+    this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
+
+    //this._adapters = null;
   }
 
   get config() {

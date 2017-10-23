@@ -2,9 +2,8 @@ let fs = require('fs');
 let _ = require('lodash');
 let Csv = require('scraper/output/csv');
 let Problem = require('scraper/output/problem');
-let URL = require('url');
-let PrepareBaseUrl = require('scraper/adapter/helper/prepare-base-url');
 let Preprocessor = require('scraper/preprocessor');
+const ConfigHandler = require('scraper/config-handler');
 
 class Abstract {
   constructor(nightmare, config) {
@@ -15,14 +14,16 @@ class Abstract {
     this._output = null;
     this._outputProblem = null;
     this._preprocessor = null;
+    this._configHandler = null;
     this._nextUrl = null;
 
     this._row = {};
-    this._headMap = null;
+    this._headerMap = null;
 
 
-    this.location = URL.parse(config.source.path);
-    this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
+    // source.path in file is path and in site is url
+    /*this.location = URL.parse(config.source.path);
+    this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);*/
 
     this.logger = fs.createWriteStream('data/error.log', {
       flags: 'a', // 'a' means appending (old data will be preserved)
@@ -57,7 +58,7 @@ class Abstract {
    * @returns json
    */
   get headMap() {
-    return this._headMap;
+    return this._headerMap;
   }
 
   /**
@@ -125,6 +126,14 @@ class Abstract {
     return this._preprocessor;
   }
 
+  get configHandler() {
+    if (!this._configHandler) {
+      this._configHandler = new ConfigHandler();
+    }
+
+    return this._configHandler;
+  }
+
   /**
    * Return current crawler (adapter)
    *
@@ -140,15 +149,20 @@ class Abstract {
 
   async process(searchable) {
     try {
+      //console.log(this.config.crawler);
       for (let key in this.config.crawler) {
 
-        console.log(searchable);
+        let crawlerConfig = this.config.crawler[key];
+
+        //console.log('Run crawler: ' + crawlerConfig.name);
+        console.log('Search: ' + searchable.join(', '));
+
+
         // here must be iteration though config.crawler
-        let adapter = this._crawler = this.getCrawler(this.config.crawler[key]);
+        let adapter = this._crawler = this.getCrawler(crawlerConfig);
         let fields = await adapter.scan(searchable);
 
-        console.log(fields);
-        console.log('--------++++++++++---------');
+        //console.log('--------++++++++++---------');
 
         if (fields && _.size(fields)) {
           // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
@@ -174,8 +188,13 @@ class Abstract {
       //this.output.file.end(); // here is problem "write after end Error: write after end"
       }
     } catch (e) {
-      console.log(e.stack);
-      this.log(e.message + ' ' + e.stack);
+      if (_.isString(e)) {
+        console.error(e);
+        this.log(e);
+      } else {
+        console.log(e);
+        this.log(e.message + ' ' + e.stack);
+      }
     }
   }
 

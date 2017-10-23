@@ -2,14 +2,30 @@
   "scraper": {
     "catalog": [
       {
+        "jobs": {
+          "before": [
+            "scraper/job/converter/mti",
+            {
+              "name": "standard",
+              "type": "converter",
+              "file": "RASPRODAZHA.xls"
+            }
+          ],
+          "after": []
+        },
+
         "source": {
           "type": "file",
-          "path": "data/rasprodazha_22-10-2017_10.11.35PM.xlsx",
-          "searchKeys": [{"name": "Модель", "__filter": ["replace:/ /, %20", "split:%20", "pop"]}],
+          "path": "data/pprice_list_part2.xlsx",
+          "searchKeys": [{"name": "Товар", "__filter": ["replace:/ /, %20", "split:%20", "pop"]}, "Артикул"],
           "fields": {
-            "category": "Category",
+            "category": "Направление",
+            "subcategory": "Подгруппа",
             "sku": "Код",
-            "price": "Цена грн"
+            "manufacturer": "ТМ",
+            "price": "РРЦ, грн.",
+            "manufacturer_code": "Артикул",
+            "image": "Фото"
           }
         },
         "crawler": [
@@ -34,12 +50,12 @@
 
         "output": {
           "type": "csv",
-          "path": "data/products-south-sale.csv"
+          "path": "data/products-south.csv"
         },
 
         "problemOutput": {
           "type": "csv",
-          "path": "data/shop-it-problem-south-sale.csv"
+          "path": "data/shop-it-problem-south.csv"
         },
 
         "preprocessor": {
@@ -49,12 +65,16 @@
             "status": 1,
             "visibility": 4,
             "is_in_stock": 1,
-            "qty": 1,
+            "qty": 50,
             "root_category": "Root Catalog",
-            "categories": {"value": ["Акційні товари", "$source.category"], "__filter": ["to-lower", "upper-first", "replace:/\//, -"], "__prepare": ["join-categories-magento"]},
+            "categories": {"value": ["$source.category", "$source.subcategory"], "__filter": ["to-lower", "upper-first", "replace:/\//, -"], "__prepare": ["join-categories-magento"]},
             "type": "simple",
             "sku": "$source.sku",
-            "price": {"value": ["$source.price"], "__filter": ["shift", "price", "plus-percent:15"]}
+            "name": "$source.name",
+            "short_description": "$source.short_description",
+            "manufacturer": "$source.manufacturer",
+            "manufacturer_code": "$source.manufacturer_code",
+            "price": "$source.price"
           }
         }
       }

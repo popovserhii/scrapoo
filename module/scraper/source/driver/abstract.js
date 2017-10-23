@@ -18,6 +18,18 @@ class Abstract {
     }
 
     /**
+     * Set/get current sheet
+     *
+     * In most cases it is tabs from excel in other cases it was only one sheet
+     *
+     * @param string $name
+     * @return string|self
+     */
+    if (this.sheetName === 'function') {
+      throw new TypeError('Must override method setter/getter "sheet()"');
+    }
+
+    /**
      * Get first column
      *
      * @return int
@@ -69,9 +81,9 @@ class Abstract {
      *
      * @return array
      */
-    //if (this.config === 'function') {
-    //  throw new TypeError('Must override method "config()"');
-    //}
+    if (this.config === 'function') {
+      throw new TypeError('Must override method "config()"');
+    }
   }
 }
 

@@ -36,13 +36,15 @@
     "globby": "^6.1.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
+    "minimist": "^1.2.0",
     "nightmare": "^2.10.0",
     "nprogress": "^0.2.0",
     "random-useragent": "^0.3.1",
     "requirejs": "^2.3.5",
     "sprintf-js": "^1.1.1",
     "text": "github:requirejs/text#latest",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "xlsx": "^0.11.6"
   },
   "peerDependencies": {},
   "devDependencies": {

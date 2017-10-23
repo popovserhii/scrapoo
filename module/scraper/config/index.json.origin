@@ -1,0 +1,82 @@
+{
+  "scraper": {
+    "catalog": [
+      {
+        "jobs": {
+          "before": [
+            "scraper/job/converter/mti",
+            {
+              "name": "standard",
+              "type": "converter",
+              "file": "RASPRODAZHA.xls"
+            }
+          ],
+          "after": []
+        },
+
+        "source": {
+          "type": "file",
+          "path": "data/pprice_list.xlsx",
+          "searchKeys": ["Артикул", {"name": "Товар", "__filter": ["replace:/ /, %20", "split:%20", "pop"]}],
+          "fields": {
+            "category": "Направление",
+            "subcategory": "Подгруппа",
+            "sku": "Код",
+            "name": "Товар",
+            "short_description": "Описание",
+            "manufacturer": "ТМ",
+            "price": "РРЦ, грн.",
+            "manufacturer_code": "Артикул"
+          }
+        },
+        "crawler": [
+          {
+            "name": "hotline-ua",
+            "url": "http://hotline.ua/sr/autocomplete/?term=%s",
+            "group": {
+              "selector": "#page-product",
+              "fields": {
+                "image": {"selector": ".gallery-box-img .owl-item:first-child img", "__output": {"attr": "src"}, "__prepare": ["base-url"]},
+                "small_image": {"selector": ".gallery-box-img .owl-item:first-child img", "__output": {"attr": "src"}, "__prepare": ["base-url"]},
+                "thumbnail": {"selector": ".gallery-box-img .owl-item:first-child img", "__output": {"attr": "src"}, "__prepare": ["base-url"]},
+                "media_gallery": {"selector": ".gallery-box-img .owl-item img", "__output": {"attr": "src"}, "__prepare": ["base-url", "join-by-semicolon"]},
+                "description": {"selector": ".resume-description .text"},
+                "specifications": {"selector": ".specification-table [data-pills=\"content\"]:nth-child(3)", "__output": {"as": "html"}}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/products-south.csv"
+        },
+
+        "problemOutput": {
+          "type": "csv",
+          "path": "data/shop-it-problem-south.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "attribute_set": "Default",
+            "store": "admin",
+            "status": 1,
+            "visibility": 4,
+            "is_in_stock": 1,
+            "qty": 50,
+            "root_category": "Root Catalog",
+            "categories": {"value": ["$source.category", "$source.subcategory"], "__filter": ["to-lower", "upper-first"], "__prepare": ["join-categories-magento"]},
+            "type": "simple",
+            "sku": "$source.sku",
+            "name": "$source.name",
+            "short_description": "$source.short_description",
+            "manufacturer": "$source.manufacturer",
+            "manufacturer_code": "$source.manufacturer_code",
+            "price": "$source.price"
+          }
+        }
+      }
+    ]
+  }
+}

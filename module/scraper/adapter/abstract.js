@@ -2,12 +2,13 @@ const cheerio = require('cheerio');
 const URL = require('url');
 const _ = require('lodash');
 const s = require('sprintf-js');
+const ConfigHandler = require('scraper/config-handler');
 
 class Abstract {
   constructor(nightmare, config) {
     this._nightmare = nightmare;
     this._config = config || {};
-    this.helpers = {};
+    this._configHandler = null;
 
     if (new.target === Abstract) {
       throw new TypeError('Cannot construct Abstract instances directly');
@@ -30,6 +31,14 @@ class Abstract {
 
   get config() {
     return this._config;
+  }
+
+  get configHandler() {
+    if (!this._configHandler) {
+      this._configHandler = new ConfigHandler();
+    }
+
+    return this._configHandler;
   }
 
   get currFieldConfig() {
@@ -63,8 +72,9 @@ class Abstract {
   }
 
   async getFields(response) {
-
     let $ = this.$ = cheerio.load(response);
+
+
 
     let fields = $(this.config.group.selector).map((i, element) => {
       let group = $(element);
@@ -82,23 +92,9 @@ class Abstract {
         //console.log('fields[name]', fields[name], name, fieldConfig.selector/*, group.find(fieldConfig.selector)*/);
 
 
-        fields[name] = this._processFilters(fields[name]);
-        /*if (fieldConfig['__filter'] !== undefined) {
-          for (let i = 0; i < fieldConfig['__filter'].length; i++) {
-            let filter = fieldConfig['__filter'][i];
-            //console.log(fieldConfig.selector);
-            //console.log(fields[name]);
-            fields[name] = this.getHelper(filter, 'filter').filter(fields[name]);
-          }
-        }*/
-
-        fields[name] = this._processPrepare(fields[name]);
-        /*if (fieldConfig['__prepare'] !== undefined) {
-          for (let i = 0; i < fieldConfig['__prepare'].length; i++) {
-            let prepare = fieldConfig['__prepare'][i];
-            fields[name] = this.getHelper(prepare, 'prepare').prepare(fields[name]);
-          }
-        }*/
+        //fields[name] = this._processFilters(fields[name], this.currFieldConfig);
+        //fields[name] = this._processPrepare(fields[name], this.currFieldConfig);
+        fields[name] = this.configHandler.process(fields[name], this.currFieldConfig);
 
         this.currField = '';
       }
@@ -109,32 +105,7 @@ class Abstract {
     return fields;
   }
 
-  _processFilters(value) {
-    let fieldConfig = this.currFieldConfig;
-    if (fieldConfig['__filter'] !== undefined) {
-      for (let i = 0; i < fieldConfig['__filter'].length; i++) {
-        let filter = fieldConfig['__filter'][i];
-        //console.log(fieldConfig.selector);
-        //console.log(filter);
-        //console.log('_processFilters', value);
-        value = this.getHelper(filter, 'filter').filter(value);
-      }
-    }
 
-    return value;
-  }
-
-  _processPrepare(value) {
-    let fieldConfig = this.currFieldConfig;
-    if (fieldConfig['__prepare'] !== undefined) {
-      for (let i = 0; i < fieldConfig['__prepare'].length; i++) {
-        let prepare = fieldConfig['__prepare'][i];
-        value = this.getHelper(prepare, 'prepare').prepare(value);
-      }
-    }
-
-    return value;
-  }
 
   getValue(elm) {
     let fieldConfig = this.currFieldConfig;
@@ -170,27 +141,6 @@ class Abstract {
     return ('html' === type)
       ? this.$.html(elm).replace(/>\s+</g, '><').replace(/\s\s+/g, ' ') // @toto Improve regexp
       : elm.text().trim();
-  }
-
-  getHelper(name, pool) {
-    let key = pool + '-' + name;
-    if (this.helpers[key] !== undefined) {
-      return this.helpers[key];
-    }
-
-    //let config = this.config;
-    //let helperClass = key;
-    //if (this.helpers[pool][name] !== undefined) {
-    //  helperClass = this.helpers[pool][name];
-    //} else if (config['helpers'][pool][name] !== undefined) {
-    //if (config.fields[pool][name] !== undefined) {
-    //  helperClass += config.fields[pool][name];
-    //} else {
-    //  throw new Error(s.sprintf('Import helper [%s:%s] not exists', pool, name));
-    //}
-
-    let HelperClass = require('./helper/' + key);
-    return this.helpers[key] = new HelperClass(this);
   }
 }
 

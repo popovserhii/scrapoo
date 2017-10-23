@@ -22,9 +22,13 @@ class Search extends Abstract {
     this.location = URL.parse(this.config.url);
 
     for (let key of searchable) {
+      if (!_.isString(key)) {
+        key = this.configHandler.process(key.name, key);
+      }
+
       let searchKey = encodeURIComponent(key);
 
-      //console.log(this.config);
+      console.log(this.config);
       console.log(searchKey);
 
         let response = await this.nightmare

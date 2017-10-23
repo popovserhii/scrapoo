@@ -8,7 +8,6 @@ const Excel = require('scraper/source/driver/excel');
 //const Preprocessor = require('scraper/preprocessor');
 const Abstract = require('scraper/source/abstract');
 
-
 class File extends Abstract {
   constructor(nightmare, config) {
     super(nightmare, config);
@@ -120,6 +119,9 @@ class File extends Abstract {
   async start() {
     //let filename = 'data/laptops.xlsx';
     let filename = this.config.source.path;
+
+    console.log('File processing: ' + filename);
+
     // read from a file
     let excel = new Excel();
 
@@ -132,10 +134,10 @@ class File extends Abstract {
 
     let head = await excel.read(firstRow);
 
-    this._headMap = {};
+    this._headerMap = {};
     _.each(head, (val, i) => {
       if (!_.isEmpty(val)) {
-        this._headMap[val] = i;
+        this._headerMap[val] = i;
       }
     });
 
@@ -145,18 +147,23 @@ class File extends Abstract {
     // iterate through rows data
     for (let i = (firstRow + 1); i <= lastRow; i++) {
       let searchable = [];
-      this._row = null;
+
+      //this._row = null;
+      this._row = await excel.read(i);
+      //console.log(this._row);
+
       let searchKeys = this.config.source.searchKeys;
       for (let k = 0; k < searchKeys.length; k++) {
         //this._row = await excel.read(i);
-        this._row = await excel.read(i);
-
-        //console.log(this._row);
-
-
-        let name = searchKeys[k];
-        let cell = this._row[this._headMap[name]];
-
+        //let name = null;
+        let cell = null;
+        if (_.isObject(searchKeys[k])) {
+          let name = searchKeys[k].name;
+          cell = this.configHandler.process(this._row[this._headerMap[name]], searchKeys[k]);
+        } else {
+          let name = searchKeys[k];
+          cell = this._row[this._headerMap[name]];
+        }
         searchable.push(cell);
       }
 
@@ -171,36 +178,6 @@ class File extends Abstract {
 
     //this.logger.end();
   }
-
-
-  /*async process(searchable) {
-    //console.log(searchable);
-    //return;
-    try {
-      //for (let crawler in this.config.crawler) {
-      // here must be iteration though config.crawler
-      let fields = await this.adapter.scan(searchable);
-
-      if (_.size(fields)) {
-        //// ++fields = this.preprocessor.process(fields);
-
-        await this.output.send(fields);
-      } else {
-        // fields not found with any crawler
-        // write to file about problem product
-        this.outputProblem.send({
-          value: searchable.join(','),
-          message: 'Not found'
-        });
-      }
-
-      //this.output.file.end(); // here is problem "write after end Error: write after end"
-      //}
-    } catch (e) {
-      //console.log(e.stack);
-      this.log(e.message + ' ' + e.stack);
-    }
-  }*/
 }
 
 module.exports = File;

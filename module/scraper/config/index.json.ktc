@@ -1,0 +1,74 @@
+{
+  "scraper": {
+    "catalog": [
+      {
+        "jobs": {
+          "before": [
+            "scraper/job/mti-converter"
+          ],
+          "after": []
+        },
+
+        "source": {
+          "type": "file",
+          "path": "data/converted.csv",
+          "searchKeys": ["Код произв", "Модель"],
+          "fields": {
+            "categories": "Категория",
+            "sku": "MTI код",
+            "name": "Модель",
+            "short_description": "Наименование",
+            "manufacturer": "Производитель",
+            "price": "Розн. цена (грн.)"
+          }
+        },
+        "crawler": [
+          {
+            "name": "ktc-ua",
+            "url": "https://ktc.ua/search/?q=%s",
+            "group": {
+              "selector": ".cardPage",
+              "fields": {
+                "image": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "small_image": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "thumbnail": {"selector": ".bigMinImg a:first-child", "__output": {"attr": "href"}, "__prepare": ["base-url"]},
+                "media_gallery": {"selector": "#slideMainImg a", "__output": {"attr": "href"}, "__prepare": ["base-url", "join-by-semicolon"]},
+                "description": {"selector": ".description-text article"},
+                "specifications": {"selector": ".blockFullCharacteristics", "__output": {"as": "html"}}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/products.csv"
+        },
+
+        "problemOutput": {
+          "type": "csv",
+          "path": "data/shop-it-problem.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "attribute_set": "Default",
+            "store": "admin",
+            "status": 1,
+            "visibility": 4,
+            "is_in_stock": 1,
+            "qty": 50,
+            "root_category": "Root Catalog",
+            "categories": "$source.categories",
+            "type": "simple",
+            "sku": "$source.sku",
+            "name": "$source.name",
+            "short_description": "$source.short_description",
+            "manufacturer": "$source.manufacturer",
+            "price": "$source.price"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const ConfigHandler = require('scraper/config-handler');
 
 class Preprocessor {
   constructor(source, config) {
@@ -9,6 +10,14 @@ class Preprocessor {
 
   get config() {
     return this._config;
+  }
+
+  get configHandler() {
+    if (!this._configHandler) {
+      this._configHandler = new ConfigHandler();
+    }
+
+    return this._configHandler;
   }
 
   get source() {
@@ -27,8 +36,20 @@ class Preprocessor {
       let preFields = {};
 
       let configFields = this.config.fields/* || {}*/;
+
       _.each(configFields, (varPattern, name) => {
-        if (_.startsWith(varPattern, '$', 0)) {
+        if (_.isObject(varPattern)) { // variable is complex with __filter & __prepare
+          let values = _.map(varPattern.value, value => {
+            if (this.isVariable(value)) {
+              return this._processValue(value.substring(1));
+            } else {
+              return value;
+            }
+          });
+          preFields[name] = this.configHandler.process(values, varPattern);
+
+          //console.log('processor.js', varPattern, preFields[name]);
+        } else if (this.isVariable(varPattern)) {
           //preFields[name] = this._processValue(varPattern);
           preFields[name] = this._processValue(varPattern.substring(1));
         }
@@ -38,16 +59,31 @@ class Preprocessor {
     return isArray ? fields : fields.shift();
   }
 
-  _processValue(varPatter) {
-    let parts = varPatter.split('.');
-    let fieldName = parts.pop();
-    let objectName = parts.pop();
+  _processValue(varPattern) {
+    let value = null;
 
-    if (objectName === 'source') {
-      return this[objectName].getNamedField(fieldName);
-    } else {
-      return this[objectName][fieldName];
-    }
+    //console.log(varPattern);
+
+    //if (_.startsWith(varPattern, '$', 0)) {
+      let parts = varPattern.split('.');
+      let fieldName = parts.pop();
+      let objectName = parts.pop();
+
+      //console.log(varPattern);
+      //console.log(parts);
+
+      if (objectName === 'source') { // @todo unified get values from object. Implement adding variables (source, crawler) with simple API such as pre.addVariable(name, value)
+        value = this[objectName].getNamedField(fieldName);
+      } else {
+        value = this[objectName][fieldName];
+      }
+    //}
+
+    return value;
+  }
+
+  isVariable(varPattern) {
+    return _.startsWith(varPattern, '$', 0);
   }
 }
 

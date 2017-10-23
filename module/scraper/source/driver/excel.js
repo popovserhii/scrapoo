@@ -6,7 +6,7 @@ class Excel extends Abstract {
 
   constructor(config = null) {
     super();
-    this._filename = '';
+    this._source = '';
     this.xlBook = null;
     this.xlSheet = null;
     this._firstRow = null;
@@ -19,11 +19,11 @@ class Excel extends Abstract {
   }
 
   get source() {
-    return this._filename;
+    return this._source;
   }
 
   set source(name) {
-    this._filename = name;
+    this._source = name;
 
     return this;
   }
@@ -95,7 +95,8 @@ class Excel extends Abstract {
   async _xlBook() {
     if (!this.xlBook) {
       let workbook = new ExcelJs.Workbook();
-      this.xlBook = await workbook.csv.readFile(this.source)
+      //this.xlBook = await workbook.csv.readFile(this.source)
+      this.xlBook = await workbook.xlsx.readFile(this.source)
         .then(function () {
           return workbook;
         });

@@ -1,0 +1,92 @@
+{
+  "scraper": {
+    "catalog": [
+      {
+        "jobs": {
+          "before": [
+            "scraper/job/converter/mti",
+            {
+              "name": "standard",
+              "type": "converter",
+              "file": "RASPRODAZHA.xls"
+            }
+          ],
+          "after": []
+        },
+
+        "source": {
+          "type": "file",
+          "path": "data/products-south_18-10-2017_12.58.24PM_without_images.xlsx",
+          "searchKeys": ["manufacturer_code", "name"],
+          "fields": {
+            "attribute_set": "attribute_set",
+            "store": "store",
+            "status": "status",
+            "visibility": "visibility",
+            "is_in_stock": "is_in_stock",
+            "qty": "qty",
+            "root_category": "root_category",
+            "categories": "categories",
+            "type": "type",
+            "sku": "sku",
+            "name": "name",
+            "short_description": "short_description",
+            "manufacturer": "manufacturer",
+            "manufacturer_code": "manufacturer_code",
+            "price": "price",
+            "description": "description",
+            "specifications": "specifications"
+          }
+        },
+        "crawler": [
+          {
+            "name": "hotline-ua",
+            "url": "http://hotline.ua/sr/autocomplete/?term=%s",
+            "action": {"click": ".resume-zoom .getmdl"},
+            "group": {
+              "selector": "body",
+              "fields": {
+                "image": {"selector": ".gallery-box-img img", "__output": {"attr": "src"}, "__filter": ["shift"], "__prepare": ["base-url"]},
+                "small_image": {"selector": ".gallery-box-img img", "__output": {"attr": "src"}, "__filter": ["shift"], "__prepare": ["base-url"]},
+                "thumbnail": {"selector": ".gallery-box-img img", "__output": {"attr": "src"}, "__filter": ["shift"], "__prepare": ["base-url"]},
+                "media_gallery": {"selector": ".gallery-box-img img", "__output": {"attr": "src"}, "__prepare": ["base-url", "join-by-semicolon"]}
+              }
+            }
+          }
+        ],
+
+        "output": {
+          "type": "csv",
+          "path": "data/products-south.csv"
+        },
+
+        "problemOutput": {
+          "type": "csv",
+          "path": "data/shop-it-problem-south-p2.csv"
+        },
+
+        "preprocessor": {
+          "fields": {
+            "attribute_set": "$source.attribute_set",
+            "store": "$source.store",
+            "status": "$source.status",
+            "visibility": "$source.visibility",
+            "is_in_stock": "$source.is_in_stock",
+            "qty": "$source.qty",
+            "root_category": "$source.root_category",
+            "categories": "$source.categories",
+            "type": "$source.type",
+            "sku": "$source.sku",
+            "name": "$source.name",
+            "short_description": "$source.short_description",
+            "manufacturer": "$source.manufacturer",
+            "manufacturer_code": "$source.manufacturer_code",
+            "price": "$source.price",
+            "description": "$source.description",
+            "specifications": "$source.specifications"
+          }
+        }
+      }
+    ]
+  }
+}
