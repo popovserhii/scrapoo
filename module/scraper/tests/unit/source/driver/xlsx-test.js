@@ -39,7 +39,7 @@ describe('XLSX Driver', function() {
   it('config: should be merged correctly with default values', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
     let config = xlsx._mergeConfig();
 
@@ -50,7 +50,7 @@ describe('XLSX Driver', function() {
   it('firstRow: should skip 1 row and return integer value of first not empty row in excel', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.firstRow();
@@ -61,7 +61,7 @@ describe('XLSX Driver', function() {
   it('lastRow: should return integer value of last row in excel', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.lastRow();
@@ -72,7 +72,7 @@ describe('XLSX Driver', function() {
   it('firstColumn: should return integer values of first column', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.firstColumn();
@@ -83,7 +83,7 @@ describe('XLSX Driver', function() {
   it('lastColumn: should return integer values of last column', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.lastColumn();
@@ -94,7 +94,7 @@ describe('XLSX Driver', function() {
   it('read(row): should return row (array)', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = 'south-defect';
+    xlsx._config = 'south-defect';
     xlsx.sheetName = 'it_ноутбуки';
 
     let row = await xlsx.read(0);
@@ -103,6 +103,27 @@ describe('XLSX Driver', function() {
     expect(row).to.be.an('array')
       .that.includes('Код')
       .that.includes('Модель');
+  });
+
+  it('rows: should return indexed rows', async () => {
+    consts.config["south-defect"]["default"]["skip"] = 1;
+    consts.config["south-defect"]["default"]["index"] = 'Код товара';
+    consts.config["south-defect"]["path"] = __dirname + '/../../../data/laptops.xlsx';
+
+    let xlsx = new Xlsx(consts.config["south-defect"]);
+
+    xlsx.source = consts.config["south-defect"]["path"];
+
+    let index = await xlsx.index();
+    //console.log(row);
+
+    expect(index)
+      .to.deep.eql({
+        "2852963": 2,
+        "2879423": 3,
+        "2974651": 1,
+        "Код товара": 0
+      });
   });
 
 });

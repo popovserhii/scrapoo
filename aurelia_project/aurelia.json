@@ -22,7 +22,7 @@
     "bundles": [
       {
         "name": "app-bundle.js",
-        "source": [
+        "_config": [
           "[**/*.js]",
           "**/*.{css,html}"
         ]
@@ -128,19 +128,19 @@
         "transform-es2015-modules-amd"
       ]
     },
-    "source": "src/**/*.js"
+    "_config": "src/**/*.js"
   },
   "markupProcessor": {
     "id": "minimum",
     "displayName": "Minimal Minification",
     "fileExtension": ".html",
-    "source": "src/**/*.html"
+    "_config": "src/**/*.html"
   },
   "cssProcessor": {
     "id": "none",
     "displayName": "None",
     "fileExtension": ".css",
-    "source": "src/**/*.css"
+    "_config": "src/**/*.css"
   },
   "editor": {
     "id": "vscode",
@@ -149,7 +149,7 @@
   "unitTestRunner": {
     "id": "karma",
     "displayName": "Karma",
-    "source": "test/unit/**/*.js"
+    "_config": "test/unit/**/*.js"
   },
   "paths": {
     "root": "src",

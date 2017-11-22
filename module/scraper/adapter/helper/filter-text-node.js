@@ -4,7 +4,7 @@ let FilterAbstract = require('./filter-abstract');
 class FilterTextNode extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   filter(value) {

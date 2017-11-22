@@ -54,7 +54,7 @@
             "categories": {"value": ["Акційні товари", "$source.category"], "__filter": ["to-lower", "upper-first", "replace:/\//, -"], "__prepare": ["join-categories-magento"]},
             "type": "simple",
             "sku": "$source.sku",
-            "price": {"value": ["$source.price"], "__filter": ["shift", "price", "plus-percent:15"]}
+            "price": {"value": ["$source.price"], "__filter": ["shift", "price", "plus-percent:20"]}
           }
         }
       }

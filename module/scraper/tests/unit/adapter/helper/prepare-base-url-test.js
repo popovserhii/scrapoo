@@ -6,7 +6,7 @@ describe('Helper: Prepare Base Url', () => {
   it('should return full url based on string location', () => {
     let helper = new Helper();
     let urlPath = helper
-      .setOption('location', 'http://example.com')
+      .setConfig('location', 'http://example.com')
       .prepare('/img/2.jpg');
 
     expect(urlPath).to.equal('http://example.com/img/2.jpg');
@@ -19,7 +19,7 @@ describe('Helper: Prepare Base Url', () => {
     };
     let helper = new Helper();
     let urlPath = helper
-      .setOption('location', location)
+      .setConfig('location', location)
       .prepare('/img/2.jpg');
 
     expect(urlPath).to.equal('http://example.com/img/2.jpg');

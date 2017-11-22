@@ -3,32 +3,33 @@ const d3 = require('d3-dsv');
 const _ = require('lodash');
 const cheerio = require('cheerio');
 const useragent = require('random-useragent');
-const Abstract = require('scraper/source/abstract');
+//const Abstract = require('scraper/source/abstract');
 const URL = require('url');
 const PrepareBaseUrl = require('scraper/adapter/helper/prepare-base-url');
 
-class Site extends Abstract{
+//class Site extends Abstract{
+class Site {
   constructor(nightmare, config) {
-    super(nightmare, config);
 
-    this.crawlerQueue = [];
+    //super(nightmare, config);
+
+
     this.searchKeys = [];
-    //Site.nextUrl = '';
-    //this.filePath = 'data/shop-it.csv';
-
-    this.location = URL.parse(config.source.path);
+    this.location = URL.parse(config.path);
     this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
-
-    //this._adapters = null;
   }
 
-  get config() {
+  /*get config() {
     return this._config;
-  }
+  }*/
 
 
   async start() {
-    let siteName = this.config.source.path;
+    let siteName = this.config.path;
+
+    console.log(siteName);
+    console.log(this.config);
+
 
     let response = await this.nightmare
       .goto(siteName)
@@ -39,7 +40,7 @@ class Site extends Abstract{
 
     let $ = this.$ = cheerio.load(response);
 
-    let selectors = _.castArray(this.config.source.selector);
+    let selectors = _.castArray(this.config._config.selector);
 
     let startUrls = [];
     _.each(selectors, selector => {
@@ -50,7 +51,7 @@ class Site extends Abstract{
 
     //startUrls = ['https://www.supermarketcy.com.cy/saltses-dressings-soypes'];
     for (let i = 0; i < startUrls.length; i++) {
-      if (this.config.source.options.iterate) {
+      if (this.config._config.options.iterate) {
         await this._scanIterable(startUrls[i]);
       } else {
         await this._scanUrls(startUrls[i]);
@@ -59,7 +60,7 @@ class Site extends Abstract{
   }
 
   async _scanIterable(url) {
-    let options = this.config.source.options;
+    let options = this.config._config.options;
 
      let urls = await this.nightmare
         .goto(url)
@@ -89,8 +90,8 @@ class Site extends Abstract{
     await this.process(url);
 
     if (nextUrl) {
-      if (!this.config.source.options.iterate) {
-        this.config.source.options.iterate = '.pager .pager__item--last a';
+      if (!this.config._config.options.iterate) {
+        this.config._config.options.iterate = '.pager .pager__item--last a';
       }
       await this._scanIterable(nextUrl);
     }
@@ -104,7 +105,7 @@ class Site extends Abstract{
 
     let $ = cheerio.load(response);
 
-    let dynamicFields = this.config.source.options.dynamicFields;
+    let dynamicFields = this.config._config.options.dynamicFields;
       for (let name in dynamicFields) {
         this._row[name] = $(dynamicFields[name].selector).text();
       }

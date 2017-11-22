@@ -3,7 +3,7 @@ const Excel = require('exceljs');
 
 class MtiConverter {
   constructor(source) {
-    this.source = source;
+    this._config = source;
     this._source = '';
   }
 

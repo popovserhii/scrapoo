@@ -7,7 +7,7 @@ import project from '../aurelia.json';
 import {build} from 'aurelia-cli';
 
 export default function processMarkup() {
-  return gulp.src(project.markupProcessor.source)
+  return gulp.src(project.markupProcessor._config)
     .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
     .pipe(changedInPlace({firstPass:true}))
     .pipe(htmlmin({

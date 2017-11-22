@@ -4,36 +4,31 @@ let _ = require('lodash');
 
 class PrepareBaseUrl extends PrepareAbstract {
   constructor(adapter) {
-    super();
-    this.adapter = adapter;
+    super(adapter);
     this.options = {};
 
-    if (adapter && adapter.hasOwnProperty('location')) {
-      this.setOption('location', adapter.location)
-    }
-  }
+    //console.log('module/scraper/adapter/helper/prepare-base-url.js', adapter.nightmare.url());
+    //console.log('module/scraper/adapter/helper/prepare-base-url.js', adapter.nightmare.url());
 
-  setOption(key, value) {
-    this.options[key] = value;
-
-    return this;
-  }
-
-  getOption(key) {
-    return this.options.hasOwnProperty(key)
-      ? this.options[key]
-      : false;
+    //if (adapter && adapter.hasOwnProperty('location')) {
+    //  this.setOption('location', adapter.location)
+    //} else if (adapter && adapter.nightmare) {
+    //  this.setOption('location', adapter.nightmare.url())
+    //}
   }
 
   prepare(relative) {
     let isArray = _.isArray(relative);
-    relative = isArray ? relative : [relative];
+    relative = _.castArray(relative);
+
+    //console.log('module/scraper/adapter/helper/prepare-base-url.js', relative);
+
     _.each(relative, (val, key) => {
       // string start with http:// or https://
       if (val.indexOf('://') > -1) {
         return;
-      } else if (this.getOption('location')) {
-        let url = this.getOption('location');
+      } else if (this.getConfig('location')) {
+        let url = this.getConfig('location');
         let location = (typeof url === 'object')
           ? url
           : URL.parse(url);

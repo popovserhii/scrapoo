@@ -28,6 +28,22 @@ class Excel extends Abstract {
     return this;
   }
 
+  get sheetName() {
+    return this._sheetName;
+  }
+
+  set sheetName(name) {
+    this._sheetName = name;
+
+    // reset sheet params
+    this._sheet = null;
+    this._firstRow = 1;
+    this._firstColumn = 0;
+    this._headers = {};
+
+    return this;
+  }
+
   async firstColumn() {
     if (null === this._firstColumn) {
       let worksheet = await this._xlSheet();
@@ -85,6 +101,7 @@ class Excel extends Abstract {
     } else {
       val = _row.getCell(column).value;
     }
+
     return val;
   }
 
@@ -108,11 +125,7 @@ class Excel extends Abstract {
   async _xlSheet() {
     if (!this.xlSheet) {
       let workbook = await this._xlBook();
-      this.xlSheet = workbook.getWorksheet(1);
-      //worksheet.eachRow(function (row, rowNumber) {
-      //  console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
-      //  return;
-      //});
+      this.xlSheet = workbook.getWorksheet(this.sheetName);
     }
 
     return this.xlSheet;

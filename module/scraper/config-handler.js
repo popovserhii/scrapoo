@@ -1,7 +1,22 @@
+const _ = require('lodash');
+
 class ConfigHandler {
 
-  constructor() {
+  constructor(variably/*,source*/) {
+    this._variably = variably;
+    this._source = this._variably.process('$source');
     this.helpers = {};
+  }
+
+  get variably() {
+    return this._variably;
+  }
+
+  /**
+   * @deprecated
+   */
+  get source() {
+    return this._source;
   }
 
   process(value, fieldConfig) {
@@ -12,13 +27,11 @@ class ConfigHandler {
   }
 
   processFilters(value, fieldConfig) {
-    //let fieldConfig = this.currFieldConfig;
     if (fieldConfig['__filter'] !== undefined) {
       for (let i = 0; i < fieldConfig['__filter'].length; i++) {
-        //let filter = fieldConfig['__filter'][i];
         let filter = this._parseHelperName(fieldConfig['__filter'][i]);
-
-        value = this.getHelper(filter.name, 'filter').filter(value, ...filter.params);
+        //value = this.getHelper(filter.name, 'filter').setConfig('params', ).filter(value, ...filter.params);
+        value = this.getHelper(filter.name, 'filter').setConfig('params', filter.params).filter(value);
       }
     }
 
@@ -26,13 +39,10 @@ class ConfigHandler {
   }
 
   processPrepare(value, fieldConfig) {
-    //let fieldConfig = this.currFieldConfig;
     if (fieldConfig['__prepare'] !== undefined) {
       for (let i = 0; i < fieldConfig['__prepare'].length; i++) {
-        //let prepare = fieldConfig['__prepare'][i];
         let prepare = this._parseHelperName(fieldConfig['__prepare'][i]);
-
-        value = this.getHelper(prepare.name, 'prepare').prepare(value, ...prepare.params);
+        value = this.getHelper(prepare.name, 'prepare').setConfig('params', prepare.params).prepare(value);
       }
     }
 
@@ -40,16 +50,22 @@ class ConfigHandler {
   }
 
   _parseHelperName(helper) {
-    let parsed = {name: helper, params: []};
-    if (false !== helper.indexOf(':')) { // helper name with params
-      let parts = helper.split(':');
-      parsed.name = parts[0];
-      if (undefined !== parts[1]) {
-        parsed.params = parts[1].split(',').map(function(param) {
-          return param.trim();
-        });
-      }
+    let parsed = {};
+    if (_.isPlainObject(helper)) {
+      parsed = helper;
+    } else if (-1 !== helper.indexOf(':')) { // helper name with params
+      let name = helper.substr(0, helper.indexOf(':'));
+      let params = helper.substr(helper.indexOf(':') + 1) || '';
+      parsed.name = name;
+      parsed.params = params.split(',');
+    } else {
+      parsed = {name: helper, params: []};
     }
+
+    parsed.params = parsed.params.map((param) => {
+      return this.variably.process(param.trim());
+    });
+
     return parsed;
   }
 
@@ -59,23 +75,11 @@ class ConfigHandler {
       return this.helpers[key];
     }
 
-    //console.log(name, pool);
-
-    //let config = this.config;
-    //let helperClass = key;
-    //if (this.helpers[pool][name] !== undefined) {
-    //  helperClass = this.helpers[pool][name];
-    //} else if (config['helpers'][pool][name] !== undefined) {
-    //if (config.fields[pool][name] !== undefined) {
-    //  helperClass += config.fields[pool][name];
-    //} else {
-    //  throw new Error(s.sprintf('Import helper [%s:%s] not exists', pool, name));
-    //}
-
-    //console.log('config-handler.js', pool, key);
+    //let config = _.merge((this.config.default || {}), (this.config[this.source.config.pool] || {}), this.config[key]);
+    let config = (this.source && _.has(this.source.config, `helper.${key}`)) ? this.source.config.helper[key] : {};
 
     let HelperClass = require('scraper/adapter/helper/' + key);
-    return this.helpers[key] = new HelperClass(this);
+    return this.helpers[key] = new HelperClass(this.source, config);
   }
 }
 

@@ -1,11 +1,7 @@
 const PrepareAbstract = require('./prepare-abstract');
 let _ = require('lodash');
 
-class PreparePrepareJoinCategoriesMagento extends PrepareAbstract {
-  constructor(adapter) {
-    super();
-    this.adapter = adapter;
-  }
+class PrepareJoinCategoriesMagento extends PrepareAbstract {
 
   prepare(value) {
     //console.log(value);
@@ -24,4 +20,4 @@ class PreparePrepareJoinCategoriesMagento extends PrepareAbstract {
   }
 }
 
-module.exports = PreparePrepareJoinCategoriesMagento;
+module.exports = PrepareJoinCategoriesMagento;

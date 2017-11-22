@@ -7,7 +7,7 @@ let _ = require('lodash');
 class PrepareArrayConcat extends PrepareAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   prepare(relative) {

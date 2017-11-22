@@ -1,21 +1,9 @@
-class PrepareAbstract {
-  constructor() {
-    this.options = {};
-  }
+const HelperAbstract = require('./helper-abstract');
+
+class PrepareAbstract extends HelperAbstract {
 
   prepare(value) {};
 
-  setOption(key, value) {
-    this.options[key] = value;
-
-    return this;
-  }
-
-  getOption(key) {
-    return this.options.hasOwnProperty(key)
-      ? this.options[key]
-      : false;
-  }
 }
 
 module.exports = PrepareAbstract;

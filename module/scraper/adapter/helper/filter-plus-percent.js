@@ -4,10 +4,11 @@ let FilterAbstract = require('./filter-abstract');
 class FilterPlusPercent extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
-  filter(value, percent) {
+  filter(value) {
+    let percent = this.config.params[0];
     value = value + (value * (percent / 100));
 
     return value;

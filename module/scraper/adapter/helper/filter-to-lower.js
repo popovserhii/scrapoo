@@ -4,7 +4,7 @@ const _ = require('lodash');
 class FilterToLower extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   /**
@@ -12,7 +12,8 @@ class FilterToLower extends FilterAbstract {
    * @param value
    */
   filter(value) {
-    //console.log('filter', value, params);
+    //console.log('module/scraper/adapter/helper/filter-to-lower.js', value);
+
     let filtered = null;
     if (_.isArray(value)) {
       filtered = _.map(value, (val) => {

@@ -12,11 +12,11 @@ describe('File Source', () => {
   it('process: should write problem product info to file if nothing found', async () => {
     let searchable = ['MNX-NOT-FOUND', 'Name not found'];
     let source = new File({}, {});
-    source.adapter = {scan: () => {}};
+    source.source = {scan: () => {}};
     source.outputProblem = {send: () => {}};
     //source.preprocessor = {: () => {}};
 
-    let scanStub = sinon.stub(source.adapter, 'scan');
+    let scanStub = sinon.stub(source.source, 'scan');
     let sendStub = sinon.stub(source.outputProblem, 'send');
 
     scanStub.withArgs(searchable).returns({});
@@ -32,10 +32,10 @@ describe('File Source', () => {
   it('process: should catch exception and write to log', async () => {
     let searchable = ['MNX-NOT-FOUND', 'Name not found'];
     let source = new File({}, {});
-    source.adapter = {scan: () => {}};
+    source.source = {scan: () => {}};
     source.outputProblem = {send: () => {}};
 
-    let scanStub = sinon.stub(source.adapter, 'scan');
+    let scanStub = sinon.stub(source.source, 'scan');
 
     await scanStub.throws(new Error('Test message'));
 

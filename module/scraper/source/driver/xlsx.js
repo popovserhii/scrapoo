@@ -7,9 +7,9 @@ class Xlsx extends Abstract {
 
   constructor(config = null) {
     super();
-    this._source = '';
-    this._sheetName = 1;
-    this._config = config;
+    this._config = config || {};
+    this._source = config.path;
+    this._sheetName = null;
     this._sheetsConfig = null;
     //this._indexes = {};
     //this._xlBook = null;
@@ -17,6 +17,7 @@ class Xlsx extends Abstract {
     this._firstRow = 0;
     this._firstColumn = 0;
     this._headers = {};
+    this._index = {};
   }
 
   get config() {
@@ -44,6 +45,12 @@ class Xlsx extends Abstract {
   set sheetName(name) {
     this._sheetName = name;
 
+    // reset sheet params
+    this._sheet = null;
+    this._firstRow = 0;
+    this._firstColumn = 0;
+    this._headers = {};
+
     return this;
   }
 
@@ -69,24 +76,35 @@ class Xlsx extends Abstract {
 
   async read(row, column = null) {
     this._sheet = await this._activateSheet();
-    //console.log(this._sheet);
 
     let val;
-    //let worksheet = await this._xlSheet();
     let _row = this._sheet[row];
 
     if (null === column) {
       val = _row;
     } else {
-      val = _row.getCell(column).value;
+      //val = _row.getCell(column).value; // @todo
     }
     return _.values(val);
   }
 
+  async rows() {
+    return await this._activateSheet();
+  }
+
+  async index() {
+    await this._mergeConfig();
+    if (!this._currConfig.index) {
+      throw new Error('Field name of index must be set in "index" config');
+    }
+    await this._activateSheet();
+
+    return this._index;
+  }
+
   async getFilename() {
     if (!this._filename) {
-      //console.log(this._config[this.source]);
-      this._filename = await globby([this._config[this.source].path]).then(paths => {
+      this._filename = await globby([this.source]).then(paths => {
         return paths.shift();
       });
     }
@@ -96,48 +114,44 @@ class Xlsx extends Abstract {
 
   async _getWorkbookReader() {
     if (!this._wb) {
-
       this._wb = XLSX.readFile(await this.getFilename());
     }
 
     return this._wb;
   }
 
-  _mergeConfig() {
-    /*this._currConfig = this._config[this.source];
-    _.forEach(this._currConfig.sheet, (sheetConfig, i) => {
-      this._sheetsConfig[sheetConfig.name] = this._currConfig.sheet[i] = _.merge({
-          skip: 0,
-          categorize: true
-        }, sheetConfig);
-    });*/
-
-    //this._currConfig = this._config[this.source];
+  async _mergeConfig() {
     if (!this._sheetsConfig) {
+      let wb = await this._getWorkbookReader();
       this._sheetsConfig = {};
-      _.forEach(this._config[this.source].sheet, (sheetConfig, i) => {
-        this._sheetsConfig[sheetConfig.name] = /*this._currConfig.sheet[i] = */_.merge({
+      //_.forEach(this._config.sheet, (sheetConfig, i) => {
+      _.forEach(wb.SheetNames, (name, i) => {
+        let named = { 'name': name };
+        let sheetConfig = _.find(this._config.sheet, named) || named;
+        this._sheetsConfig[sheetConfig.name] = _.merge({
           skip: 0,
-          categorize: true
-        }, this._config[this.source].default, sheetConfig);
+          skipLast: 0,
+          header: 1,
+          categorize: false,
+          index: false
+        }, this._config.default, sheetConfig);
       });
+
+      if (!this.sheetName) {
+        this.sheetName = wb.SheetNames[0];
+      }
     }
-
-
-    //console.log(this._sheetsConfig);
-    //sconsole.log(this._sheetsConfig[this.sheetName]);
 
     return this._currConfig = this._sheetsConfig[this.sheetName];
   }
 
   async _activateSheet() {
-
     if (!this._sheet) {
-      this._mergeConfig();
+      await this._mergeConfig();
 
       let wb = await this._getWorkbookReader();
       let ws = wb.Sheets[this.sheetName];
-      //this._sheet = this._prepareSheet(ws, this._sheetsConfig[this.sheetName]);
+
       this._sheet = this._prepareSheet(ws, this._currConfig);
     }
 
@@ -145,40 +159,73 @@ class Xlsx extends Abstract {
   }
 
   _prepareSheet(worksheet, sheetConfig) {
-    //let headers = {};
     let data = [];
-    for(let z in worksheet) {
-      if(z[0] === '!') continue;
-      //parse out the column, row, and value
-      let tt = 0;
-      for (let i = 0; i < z.length; i++) {
-        if (!isNaN(z[i])) {
-          tt = i;
-          break;
+    console.log(this.sheetName + ': ' + worksheet['!ref']);
+
+    let range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let cellAddress = {c: C, r: R};
+        // if an A1-style address is needed, encode the address
+        let cell = XLSX.utils.encode_cell(cellAddress);
+
+        //parse out the column, row, and value
+        let tt = 0;
+        for (let i = 0; i < cell.length; i++) {
+          if (!isNaN(cell[i])) {
+            tt = i;
+            break;
+          }
         }
-      }
-      let col = z.substring(0, tt);
-      let row = parseInt(z.substring(tt));
-      let value = worksheet[z].v;
 
-      if (row <= sheetConfig.skip) {
-        continue;
-      }
+        let col = cell.substring(0, tt);
+        let row = parseInt(cell.substring(tt));
+        let value = worksheet[cell]
+          ? worksheet[cell].v
+          : null;
 
-      //store header names
-      if (row == (1 + sheetConfig.skip) && value) {
-        this._headers[col] = value;
-        //continue;
-      }
+        if (row <= sheetConfig.skip) {
+          continue;
+        }
 
-      if (!data[row]) data[row] = {};
-      data[row][this._headers[col]] = value;
+        // store header names
+        if ((sheetConfig.header > 0) && row == (/*1 + */sheetConfig.skip + sheetConfig.header)/* && value*/) {
+          if (value) {
+            this._headers[col] = value;
+          } else {
+            this._headers[col] = col;
+            value = col; // replace null header name
+          }
+          //continue;
+        } else if (!sheetConfig.header) {
+          this._headers[col] = cell;
+        }
+
+
+        if (!data[row]) data[row] = {};
+        data[row][this._headers[col]] = value;
+      }
     }
 
     //drop those first two rows which are empty
-    data = _.drop(data, 1 + sheetConfig.skip);
+    data = _.drop(data, /*1 + */sheetConfig.skip + sheetConfig.header);
 
-    return data;
+    let filtered = [];
+    _.forEach(data, (row, i) => {
+      row = _.pickBy(row, _.identity);
+      if (!_.isEmpty(row)) {
+        if (sheetConfig.index) {
+          this._index[row[sheetConfig.index]] = filtered.length;
+        }
+        filtered.push(data[i]);
+      }
+    });
+
+    if (sheetConfig.skipLast) {
+      filtered = _.dropRight(filtered, sheetConfig.skipLast);
+    }
+
+    return filtered;
   }
 }
 

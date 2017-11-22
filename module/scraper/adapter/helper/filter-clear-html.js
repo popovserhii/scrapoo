@@ -4,11 +4,11 @@ let FilterAbstract = require('./filter-abstract');
 class FilterClearHtml extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   filter(value) {
     let $ = cheerio.load(value);
-    let config = this.adapter.currFieldConfig;
+    let config = this.source.currFieldConfig;
   }
 }

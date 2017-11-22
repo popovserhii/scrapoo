@@ -48,7 +48,7 @@ app.get('/api/sources', (request, response) => {
 
 app.get('/api/sources/:source', async (request, response) => {
   try {
-  let sourceName = request.params.source;
+  let sourceName = request.fields._config;
   let scrapedFile = await com.scrap(sourceName);
   scrapedFile = scrapedFile.replace(/\\/g,"/");
   //console.log(scrapedFile);

@@ -1,14 +1,18 @@
-let fs = require('fs');
-let _ = require('lodash');
-let Csv = require('scraper/output/csv');
-let Problem = require('scraper/output/problem');
-let Preprocessor = require('scraper/preprocessor');
+const fs = require('fs');
+const _ = require('lodash');
+const path = require('path');
+//let Csv = require('scraper/output/csv');
+const Problem = require('scraper/output/problem');
+const Preprocessor = require('scraper/preprocessor');
 const ConfigHandler = require('scraper/config-handler');
+const Variably = require('scraper/variably');
 
 class Abstract {
   constructor(nightmare, config) {
     this._nightmare = nightmare;
-    this._config = config || {};
+    //this._config = config || {};
+
+    this._config = _.merge({"source": {"driver": {"file": "scraper/source/driver/xlsx"}}}, config);
 
     this._crawler = null;
     this._output = null;
@@ -20,7 +24,9 @@ class Abstract {
     this._row = {};
     this._headerMap = null;
 
-
+    if (!_.has(this.config, 'source.path')) {
+      throw new Error('Config error: source.path must be set');
+    }
     // source.path in file is path and in site is url
     /*this.location = URL.parse(config.source.path);
     this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);*/
@@ -69,22 +75,25 @@ class Abstract {
     return this._row;
   }
 
-  getNamedField(name) {
+  getData(name) {
+    return this.getField(name);
+  }
+
+  getField(name) {
     let headName = this.config.source.fields[name];
     let columnIndex = this.headMap[headName];
 
-    //console.log(name);
-    //console.log(headName);
-    //console.log(columnIndex);
-    //console.log(this.headMap);
-    //console.log(this.row);
-    //return this.row[headName];
     return this.row[columnIndex];
+  }
+
+  /** @deprecated */
+  getNamedField(name) {
+    return this.getField(name);
   }
 
   getCrawler(config) {
     let Adapter = require('scraper/adapter/' + config.name);
-    let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
+    let adapter = new Adapter(this.nightmare, this.configHandler, config); // retrieve hotline etc. adapter
 
     return adapter;
   }
@@ -97,7 +106,11 @@ class Abstract {
 
   get output() {
     if (!this._output) {
-      this._output = new Csv(this.config.output);
+      let name = path.extname(this.config.output.path).substring(1);
+      let Output = require('scraper/output/' + name);
+      //return this.helpers[key] = new HelperClass(this);
+
+      this._output = new Output(this.config.output);
     }
 
     return this._output;
@@ -111,16 +124,40 @@ class Abstract {
 
   get outputProblem() {
     if (!this._outputProblem) {
-      //this._outputProblem = new Csv(this.config.problemOutput);
       this._outputProblem = new Problem(this.config.problemOutput);
     }
 
     return this._outputProblem;
   }
 
+  set driver(driver) {
+    this._driver = driver;
+
+    return this;
+  }
+
+  get driver() {
+    if (!this._driver) {
+      let Driver = require(this.config.source.driver[this.config.source.type]);
+      this._driver = new Driver();
+    }
+
+    return this._driver;
+  }
+
+  get variably() {
+    if (!this._variably) {
+      this._variably = new Variably();
+      this._variably.add('source', this);
+      this._variably.add('crawler', this.crawler);
+    }
+
+    return this._variably;
+  }
+
   get preprocessor() {
     if (!this._preprocessor) {
-      this._preprocessor = new Preprocessor(this, this.config.preprocessor);
+      this._preprocessor = new Preprocessor(this.variably, this.configHandler, this.config.preprocessor);
     }
 
     return this._preprocessor;
@@ -128,7 +165,8 @@ class Abstract {
 
   get configHandler() {
     if (!this._configHandler) {
-      this._configHandler = new ConfigHandler();
+      //this._configHandler = new ConfigHandler(this);
+      this._configHandler = new ConfigHandler(this.variably);
     }
 
     return this._configHandler;
@@ -150,42 +188,54 @@ class Abstract {
   async process(searchable) {
     try {
       //console.log(this.config.crawler);
-      for (let key in this.config.crawler) {
-
-        let crawlerConfig = this.config.crawler[key];
-
-        //console.log('Run crawler: ' + crawlerConfig.name);
-        console.log('Search: ' + searchable.join(', '));
-
-
-        // here must be iteration though config.crawler
-        let adapter = this._crawler = this.getCrawler(crawlerConfig);
-        let fields = await adapter.scan(searchable);
-
-        //console.log('--------++++++++++---------');
-
-        if (fields && _.size(fields)) {
-          // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
-          // а потрібно додати змінні в _row для категорії і підкатегорії.
-          // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
-          if ('Site' === this.constructor.name) {
-            await this.prepareFields();
+      if (_.size(this.config.crawler) && _.size(searchable)) {
+        // iterate through crawlers if they are placed in config
+        let fields = null;
+        for (let key in this.config.crawler) {
+          if (fields) {
+            // don't run other crawler if first has found needed fields
+            break;
           }
+            let crawlerConfig = this.config.crawler[key];
 
-          fields = this.preprocessor.process(fields);
-          await this.output.send(fields);
-        } else {
-          // fields not found with any crawler
-          // write to file about problem product
-          this.outputProblem.send({
-            value: searchable.join(','),
-            message: 'Not found'
-          });
+            //console.log('Run crawler: ' + crawlerConfig.name);
+            console.log('Search: ' + _.castArray(searchable).join(', '));
+
+
+            // here must be iteration though config.crawler
+            let adapter = this._crawler = this.getCrawler(crawlerConfig);
+            fields = await adapter.scan(searchable.slice()); // why slice? see here http://orizens.com/wp/topics/javascript-arrays-passing-by-reference-or-by-value/
+
+            //console.log('--------++++++++++---------');
+
+            if (fields && _.size(fields)) {
+              // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
+              // а потрібно додати змінні в _row для категорії і підкатегорії.
+              // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
+              if ('Site' === this.constructor.name) {
+                await this.prepareFields();
+              }
+
+              fields = this.preprocessor.process(fields);
+              await this.output.send(fields);
+            } else {
+              // fields not found with any crawler
+              // write to file about problem product
+              this.outputProblem.send({
+                value: searchable.join(','),
+                message: 'Not found'
+              });
+            }
+            if (await this.nextPageExist()) {
+              await this.process(this._nextUrl);
+            }
+            //this.output.file.end(); // here is problem "write after end Error: write after end"
+
         }
-        if (await this.nextPageExist()) {
-          await this.process(this._nextUrl);
-        }
-      //this.output.file.end(); // here is problem "write after end Error: write after end"
+      } else if (_.isUndefined(this.config.source.searchKeys)) {
+        // run preprocessor skip crawling
+        let fields = this.preprocessor.process({});
+        await this.output.send(fields);
       }
     } catch (e) {
       if (_.isString(e)) {
@@ -199,7 +249,7 @@ class Abstract {
   }
 
   async nextPageExist() {
-    let options = this.config.source.options;
+    let options = this.config.options;
     let nextExist = false;
 
     if (options && options.nextPage) {

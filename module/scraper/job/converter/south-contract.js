@@ -3,7 +3,7 @@ const Excel = require('exceljs');
 
 class SouthContract {
   constructor(source) {
-    this.source = source;
+    this._config = source;
     this._source = '';
   }
 

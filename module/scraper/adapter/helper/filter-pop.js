@@ -3,7 +3,7 @@ const FilterAbstract = require('./filter-abstract');
 class FilterPop extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   /**

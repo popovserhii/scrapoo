@@ -19,35 +19,62 @@ class Search extends Abstract {
   }
 
   async scan(searchable) {
-    this.location = URL.parse(this.config.url);
+    this.location = URL.parse(this.config.url.path);
 
+    //console.log('module/scraper/adapter/search.js', searchable);
     for (let key of searchable) {
-      if (!_.isString(key)) {
+      //console.log('module/scraper/adapter/search.js:key', key);
+      //console.log(typeof key);
+
+      if (!_.isString(key) && !_.isNumber(key)) {
         key = this.configHandler.process(key.name, key);
       }
+      //console.log('module/scraper/adapter/search.js:key:after', key);
+
 
       let searchKey = encodeURIComponent(key);
+      let searchUrl = s.sprintf(this.config.url.path, searchKey);
 
-      console.log(this.config);
-      console.log(searchKey);
 
-        let response = await this.nightmare
-          .goto(s.sprintf(this.config.url, searchKey))
-          .wait()
-          .evaluate(function () {
-            return JSON.parse(document.body.innerText)
-          });
+      //console.log('module/scraper/adapter/search.js', this.config);
 
-      console.log('--------------***************----------------');
-      console.log(response);
+      let response = await this.nightmare
+        .goto(searchUrl)
+        .wait()
+        .evaluate(function () {
+          //return JSON.parse(document.body.innerText)
+          return document.body.innerHTML
+        });
+
+      //console.log('--------------***************----------------');
+      //console.log(response);
 
       if (!response.length) {
         continue;
       }
 
+      let $ = this.$ = cheerio.load(response);
+      let href = $(this.config.url.selector).attr('href');
+
       // take only first element from response
-      let url = this.location.href + response[0].url;
-      return this.getFields(url);
+      let url = this.location.protocol + "//" + this.location.host + href;
+
+      //console.log(this.config.url.selector, url);
+
+      response = await this.nightmare
+        .goto(url)
+        .wait()
+        .evaluate(function () {
+          return document.body.innerHTML
+        });
+
+      //console.log(response);
+
+      if (!response.length) {
+        return null;
+      }
+
+      return this.getFields(response);
 
     }
 

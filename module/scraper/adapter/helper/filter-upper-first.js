@@ -4,7 +4,7 @@ const _ = require('lodash');
 class FilterUpperFirst extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   /**

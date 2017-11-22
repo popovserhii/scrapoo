@@ -9,130 +9,35 @@ const Excel = require('scraper/source/driver/excel');
 const Abstract = require('scraper/source/abstract');
 
 class File extends Abstract {
-  constructor(nightmare, config) {
-    super(nightmare, config);
-    //this.nightmare = nightmare;
-    //this._config = config || {};
-    //this.searchKeys = [];
-    //Site.nextUrl = '';
-    //this.filePath = 'data/shop-it.csv';
-
-    //this._row = null;
-    //this._headMap = null;
-    //this._adapters = null;
-    //this._output = null;
-    //this._outputProblem = null;
-    //this._preprocessor = null;
-
-    //this.logger = fs.createWriteStream('data/error.log', {
-    //  flags: 'a', // 'a' means appending (old data will be preserved)
-    //  encoding: 'utf8',
-    //})
-
-  }
-
-  //get config() {
-  //  return this._config;
-  //}
-
-  /**
-   * Get current row
-   * @returns json
-   */
-  /*get row() {
-    return this._row;
-  }*/
-
-  /**
-   * Get column names to index
-   * @returns json
-   */
-  /*get headMap() {
-    return this._headMap;
-  }*/
-
-  /*getNamedField(name) {
-    let headName = this.config.source.fields[name];
-    let columnIndex = this.headMap[headName];
-
-    return this.row[columnIndex];
-  }*/
-
-  /*getCrawler(config) {
-    let Adapter = require('scraper/adapter/' + config.name);
-    let adapter = new Adapter(this.nightmare, config); // retrieve hotline etc. adapter
-
-    return adapter;
-  }*/
-
-  /*set adapter(adapter) {
-    this._adapters = adapter;
-
-    return this;
-  }
-
-  get adapter() {
-    if (!this._adapters) {
-      //this._adapter = new AlmondsCom(this.nightmare, this.config.crawler[0]);
-      this._adapters = new HotlineUa(this.nightmare, this.config.crawler[0]);
-    }
-
-    return this._adapters;
-  }
-
-  set output(output) {
-    this._output = output;
-
-    return this;
-  }
-
-  get output() {
-    if (!this._output) {
-      this._output = new Csv(this.config.output.path);
-    }
-
-    return this._output;
-  }
-
-  set outputProblem(output) {
-    this._outputProblem = output;
-
-    return this;
-  }
-
-  get outputProblem() {
-    if (!this._outputProblem) {
-      this._outputProblem = new Csv('data/shop-it-problem.csv');
-    }
-
-    return this._outputProblem;
-  }
-
-  get preprocessor() {
-    if (!this._preprocessor) {
-      this._preprocessor = new Preprocessor(this, this.config.preprocessor);
-    }
-
-    return this._preprocessor;
-  }*/
 
   async start() {
     //let filename = 'data/laptops.xlsx';
     let filename = this.config.source.path;
 
-    console.log('File processing: ' + filename);
+    //let sheetName = 1;
+    //if (!_.isString(filename)) {
+    //  sheetName = filename.sheet;
+    //  filename = filename.name;
+    //}
+
+    console.log('File processing: ' + (filename.name || filename));
 
     // read from a file
-    let excel = new Excel();
+    //let excel = new Excel(); // @toto get driver based on file extension
+    let excel = this.driver; // @toto get driver based on file extension
 
-
-    excel.source = filename;
+    excel.source = filename.name || filename;
+    excel.sheetName = filename.sheet;
     let firstRow = await excel.firstRow();
     let lastRow = await excel.lastRow();
     //let firstColumn = await excel.firstColumn();
     //let lastColumn = await excel.lastColumn();
 
     let head = await excel.read(firstRow);
+
+    //console.log('module/scraper/source/file.js', head);
+    //console.log(firstRow);
+
 
     this._headerMap = {};
     _.each(head, (val, i) => {
@@ -141,8 +46,6 @@ class File extends Abstract {
       }
     });
 
-    //console.log(head);
-    //console.log(this._headMap);
 
     // iterate through rows data
     for (let i = (firstRow + 1); i <= lastRow; i++) {
@@ -152,12 +55,12 @@ class File extends Abstract {
       this._row = await excel.read(i);
       //console.log(this._row);
 
-      let searchKeys = this.config.source.searchKeys;
+      let searchKeys = _.castArray(this.config.source.searchKeys);
       for (let k = 0; k < searchKeys.length; k++) {
         //this._row = await excel.read(i);
         //let name = null;
         let cell = null;
-        if (_.isObject(searchKeys[k])) {
+        if (_.isPlainObject(searchKeys[k])) {
           let name = searchKeys[k].name;
           cell = this.configHandler.process(this._row[this._headerMap[name]], searchKeys[k]);
         } else {
@@ -168,10 +71,14 @@ class File extends Abstract {
       }
 
       searchable = _.compact(searchable);
-      if (searchable.length) {
+      //if (!searchable.length || 1 === _.size(searchable)) {
+      //  let i = 0;
+      //}
+
+      //if (searchable.length) {
         this.nightmare.useragent(useragent.getRandom());
         await this.process(searchable);
-      }
+      //}
     }
 
     //this.process();

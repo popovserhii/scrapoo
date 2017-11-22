@@ -21,6 +21,7 @@ describe('Preprocessor', () => {
 
     let configSource = {
       "source": {
+        "path": "path/to/file.ext",
         "fields": {
           "sku": "МТІ код"
         }
@@ -60,6 +61,7 @@ describe('Preprocessor', () => {
 
     let configSource = {
       "source": {
+        "path": "path/to/file.ext",
         "fields": {
           "category": "Категорія",
           "subcategory": "Під категорія"
@@ -92,6 +94,7 @@ describe('Preprocessor', () => {
 
     let configSource = {
       "source": {
+        "path": "path/to/file.ext",
         "fields": {
           "category": "Категорія",
           "subcategory": "Під категорія"

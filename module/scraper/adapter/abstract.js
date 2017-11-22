@@ -1,14 +1,17 @@
 const cheerio = require('cheerio');
 const URL = require('url');
 const _ = require('lodash');
-const s = require('sprintf-js');
-const ConfigHandler = require('scraper/config-handler');
+//const s = require('sprintf-js');
+//const ConfigHandler = require('scraper/config-handler');
+const Entities = require('html-entities').Html5Entities;
+
+const entities = new Entities();
 
 class Abstract {
-  constructor(nightmare, config) {
+  constructor(nightmare, configHandler, config) {
     this._nightmare = nightmare;
     this._config = config || {};
-    this._configHandler = null;
+    this._configHandler = configHandler;
 
     if (new.target === Abstract) {
       throw new TypeError('Cannot construct Abstract instances directly');
@@ -34,9 +37,13 @@ class Abstract {
   }
 
   get configHandler() {
-    if (!this._configHandler) {
-      this._configHandler = new ConfigHandler();
-    }
+    //if (!this._configHandler) {
+      //this._configHandler = new ConfigHandler();
+
+      //console.log('module/scraper/adapter/abstract.js', this.nightmare.url());
+
+      this._configHandler.getHelper('base-url', 'prepare').setConfig('location', this.location);
+    //}
 
     return this._configHandler;
   }
@@ -53,6 +60,16 @@ class Abstract {
   }
 
   async scan(searchable) {
+    //console.log('module/scraper/adapter/abstract.js', searchable);
+    if (_.isArray(searchable)) { // @todo if need iterate over array then you should to filter only url links in array because can be any value
+      searchable = searchable.shift();
+    }
+    let expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi;
+    let regex = new RegExp(expression);
+    if (!searchable.match(regex)) {
+      return;
+    }
+
     this.location = URL.parse(searchable);
 
     let response = await this.nightmare
@@ -75,7 +92,6 @@ class Abstract {
     let $ = this.$ = cheerio.load(response);
 
 
-
     let fields = $(this.config.group.selector).map((i, element) => {
       let group = $(element);
       //for (let name in this.config.fields) {
@@ -94,6 +110,7 @@ class Abstract {
 
         //fields[name] = this._processFilters(fields[name], this.currFieldConfig);
         //fields[name] = this._processPrepare(fields[name], this.currFieldConfig);
+
         fields[name] = this.configHandler.process(fields[name], this.currFieldConfig);
 
         this.currField = '';
@@ -139,7 +156,7 @@ class Abstract {
 
   _getOutputAs(elm, type) {
     return ('html' === type)
-      ? this.$.html(elm).replace(/>\s+</g, '><').replace(/\s\s+/g, ' ') // @toto Improve regexp
+      ? entities.decode(this.$.html(elm).replace(/>\s+</g, '><').replace(/\s\s+/g, ' ')) // @toto Improve regexp
       : elm.text().trim();
   }
 }

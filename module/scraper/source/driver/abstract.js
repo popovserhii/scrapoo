@@ -13,7 +13,7 @@ class Abstract {
      * @param string|null $name
      * @return string|self
      */
-    if (this.source === 'function') {
+    if (this._config === 'function') {
       throw new TypeError('Must override method "source(name)"');
     }
 
@@ -74,6 +74,26 @@ class Abstract {
      */
     if (this.read === 'function') {
       throw new TypeError('Must override method "read(row, column)"');
+    }
+
+    /**
+     * Get all rows
+     *
+     * @return array Return collection of plain (json) objects
+     */
+    if (this.rows === 'function') {
+      throw new TypeError('Must override method "rows()"');
+    }
+
+    /**
+     * Get all indexes of rows
+     *
+     * If "index" config set to field name then all rows will be indexed by this value
+     *
+     * @return array Return plain (json) object where property name is field value and property value is index of row
+     */
+    if (this.index === 'function') {
+      throw new TypeError('Must override method "index()"');
     }
 
     /**

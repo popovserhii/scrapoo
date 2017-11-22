@@ -76,7 +76,7 @@ class HotlineUa  extends Abstract {
       //this.baseUrlHelper = new PrepareBaseUrl().setOption('location', this.location);
       //console.log(body);
 
-      this.configHandler.getHelper('base-url', 'prepare').setOption('location', this.location);
+      this.configHandler.getHelper('base-url', 'prepare').setConfig('location', this.location);
 
       return this.getFields(body);
     }

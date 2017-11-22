@@ -14,14 +14,14 @@ let isBuilding = false;
 let pendingRefreshPaths = [];
 let watchCallback = () => { };
 let watches = [
-  { name: 'transpile', callback: transpile, source: project.transpiler.source },
-  { name: 'markup', callback: processMarkup, source: project.markupProcessor.source },
-  { name: 'CSS', callback: processCSS, source: project.cssProcessor.source }
+  { name: 'transpile', callback: transpile, _config: project.transpiler._config },
+  { name: 'markup', callback: processMarkup, _config: project.markupProcessor._config },
+  { name: 'CSS', callback: processCSS, _config: project.cssProcessor._config }
 ];
 
 if (typeof project.build.copyFiles === 'object') {
   for (let src of Object.keys(project.build.copyFiles)) {
-    watches.push({ name: 'file copy', callback: copyFiles, source: src });
+    watches.push({ name: 'file copy', callback: copyFiles, _config: src });
   }
 }
 
@@ -30,12 +30,12 @@ let watch = (callback) => {
 
   // watch every glob individually
   for(let watcher of watches) {
-    if (Array.isArray(watcher.source)) {
-      for(let glob of watcher.source) {
+    if (Array.isArray(watcher._config)) {
+      for(let glob of watcher._config) {
         watchPath(glob);
       }
     } else {
-      watchPath(watcher.source);
+      watchPath(watcher._config);
     }
   }
 };
@@ -73,15 +73,15 @@ let refresh = debounce(() => {
   // determine which tasks need to be executed
   // based on the files that have changed
   for (let watcher of watches) {    
-    if (Array.isArray(watcher.source)) {
-      for(let source of watcher.source) {
+    if (Array.isArray(watcher._config)) {
+      for(let source of watcher._config) {
         if (paths.find(path => minimatch(path, source))) {
           refreshTasks.push(watcher);
         }
       }
     }
     else {
-      if (paths.find(path => minimatch(path, watcher.source))) {
+      if (paths.find(path => minimatch(path, watcher._config))) {
         refreshTasks.push(watcher);
       }
     }

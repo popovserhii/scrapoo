@@ -4,7 +4,7 @@ let FilterAbstract = require('./filter-abstract');
 class FilterNumber extends FilterAbstract {
   constructor(adapter) {
     super();
-    this.adapter = adapter;
+    this.source = adapter;
   }
 
   /**
@@ -12,9 +12,15 @@ class FilterNumber extends FilterAbstract {
    * @param value
    */
   filter(value) {
-    //console.log('filter', value);
+    //console.log('module/scraper/adapter/helper/filter-number.js', value);
     // return only first set of number
-    return value.match(/\d+/)[0];
+    let number = 0;
+    let match = value.match(/\d+/);
+    if (match) {
+      number = match[0];
+    }
+
+    return number;
   }
 }
 
