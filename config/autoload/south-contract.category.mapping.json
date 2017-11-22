@@ -1,0 +1,68 @@
+{
+  "scraper": {
+    "south-contract-category": {
+      "source": {
+        "pool": "shop-it",
+        "type": "file",
+        "path": "data/pprice_list.xls",
+        "fields": {
+          "manufacturer": "ТМ",
+          "manufacturer_code": "Артикул",
+          "category": "Направление",
+          "subcategory": "Подгруппа",
+          "name": "Наименование укр.",
+          "title": "Товар",
+          "sku": "Код",
+          "short_description": "Описание",
+          "price": "РРЦ, грн.",
+          "price_purchase": "Цена, грн.",
+          "is_in_stock": "Склад Киев",
+          "qty": "Остаток Киев, шт.",
+          "image": "Фото",
+          "small_image": "Фото",
+          "thumbnail": "Фото",
+          "media_gallery": "Фото",
+          "guarantee_period": "Гарантия",
+          "content_url": "Полное описание"
+        }
+      },
+
+      "output": {
+        "path": "data/south-products-category-mapping.csv",
+        "options": {
+          "dateable": false
+        }
+      },
+
+      "problemOutput": {
+        "type": "csv",
+        "path": "data/south-products-category-mapping.csv"
+      },
+
+      "preprocessor": {
+        "fields": {
+          "attribute_set": "Default",
+          "store": "admin",
+          "status": 1,
+          "visibility": 4,
+          "translated": 0,
+          "root_category": "Root Catalog",
+          "categories": {"value": ["$source.category", "$source.subcategory"], "__filter": ["categories-map", "unshift:Каталог товарів"], "__prepare": ["join-categories-magento"]},
+          "type": "simple",
+          "sku": "$source.sku",
+          "manufacturer": "$source.manufacturer",
+          "manufacturer_code": "$source.manufacturer_code",
+          "price": {"value": ["$source.price", "$source.price_purchase"], "__filter": ["price"]},
+          "qty": {"value": ["$source.qty"], "__filter": ["shift", "number"]},
+          "is_in_stock": {"value": ["$source.is_in_stock"], "__filter": ["shift", "in-stock"]},
+          "name": {"value": ["$source.title"], "__filter": ["shift", "split:$source.manufacturer", "pop", "unshift:$source.manufacturer"], "__prepare": ["join"]},
+          "short_description": {"value": ["$source.short_description"], "__filter": ["shift", "replace:/(?:\\r\\n|\\r|\\n)/g, <br />", "replace:/\\\\/g, /"]},
+          "guarantee_period": "$source.guarantee_period",
+          "image": {"value": ["$source.image"], "__filter": ["shift", "get:hyperlink"]},
+          "small_image": {"value": ["$source.small_image"], "__filter": ["shift", "get:hyperlink"]},
+          "thumbnail": {"value": ["$source.thumbnail"], "__filter": ["shift", "get:hyperlink"]}
+        }
+      }
+    }
+  }
+}

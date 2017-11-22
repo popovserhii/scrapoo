@@ -1,0 +1,31 @@
+{
+  "scraper": {
+    "hotline-category": {
+      "source": {
+        "pool": "shop-it",
+        "type": "site",
+        "name": "hotline-category",
+        "path": "http://hotline.ua/",
+        "selector": "nav.menu ul.menu-in > li:last-child a"
+      },
+      "crawler": [
+        {
+          "name": "default",
+          "group": {
+            "selector": ".content",
+            "fields": {
+              "categories": {"selector": ".viewbox", "__output": {"as": "html"}, "__prepare": ["list-to-flat-json", "find-merge:{name:'Посуд'},{parent:''}", "delete:Все для дому"]}
+            }
+          }
+        }
+      ],
+
+      "output": {
+        "path": "data/scraped/shop-it/categories.json",
+        "options": {
+          "dateable": false
+        }
+      }
+    }
+  }
+}
