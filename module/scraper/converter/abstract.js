@@ -49,12 +49,12 @@ class Abstract {
     XLSX.writeFile(this.getNewWorkbook(), filePath);
   }
 
-  getXlsx() {
-    if (!this._xlsx) {
-      this._xlsx = new Xlsx(this._config);
+  getXlsx(filePath, config) {
+    if (!this._xlsx[filePath]) {
+      this._xlsx[filePath] = new Xlsx(config);
     }
 
-    return this._xlsx;
+    return this._xlsx[filePath];
   }
 
   getNewWorkbook() {

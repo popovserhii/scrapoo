@@ -48,7 +48,7 @@ class Preprocessor {
       let preFields = {};
       let configFields = this.config.fields/* || {}*/;
       _.each(configFields, (varPattern, name) => {
-        if (_.isObject(varPattern)) { // complex variable with __filter & __prepare
+        if (_.isPlainObject(varPattern)) { // complex variable with __filter & __prepare
           let values = _.map(varPattern.value, value => {
             //if (this.isVariable(value)) {
             if (this.variably.is(value)) {

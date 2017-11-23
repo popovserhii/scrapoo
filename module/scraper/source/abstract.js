@@ -230,7 +230,6 @@ class Abstract {
               await this.process(this._nextUrl);
             }
             //this.output.file.end(); // here is problem "write after end Error: write after end"
-
         }
       } else if (_.isUndefined(this.config.source.searchKeys)) {
         // run preprocessor skip crawling

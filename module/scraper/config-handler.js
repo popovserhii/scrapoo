@@ -4,7 +4,7 @@ class ConfigHandler {
 
   constructor(variably/*,source*/) {
     this._variably = variably;
-    this._source = this._variably.process('$source');
+    //this._source = this._variably.process('$source');
     this.helpers = {};
   }
 
@@ -15,9 +15,9 @@ class ConfigHandler {
   /**
    * @deprecated
    */
-  get source() {
-    return this._source;
-  }
+  //get source() {
+  //  return this._source;
+  //}
 
   process(value, fieldConfig) {
     value = this.processFilters(value, fieldConfig);
