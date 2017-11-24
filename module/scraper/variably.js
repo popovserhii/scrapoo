@@ -6,12 +6,12 @@ class Variably {
   }
 
   /**
-   * Add variable
+   * Set variable
    *
    * @param name
    * @param variable
    */
-  add(name, variable) {
+  set(name, variable) {
     if (!this._variables) {
       this._variables = {};
     }

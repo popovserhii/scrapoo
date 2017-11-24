@@ -12,16 +12,17 @@ describe('XLSX Driver', function() {
   before(() => {
     consts.sourcePathname = __dirname + '/../../../data/RASPRODAZHA.xls';
     consts.config = {
-      "south-defect": {
+      //"south-defect": {
         "path": consts.sourcePathname,
         "default": {
           //"categorize": {"name": "category", "__filter": ["replace:/^.+\/.+?\s(.*)$/, $1", "upper-first"]}
+          "header": 1,
           "categorize": true
         },
         "sheet": [
           {"name": "it_ноутбуки", "skip": 1}
         ]
-      }
+      //}
     }
   });
 
@@ -39,18 +40,25 @@ describe('XLSX Driver', function() {
   it('config: should be merged correctly with default values', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
-    let config = xlsx._mergeConfig();
+    let config = await xlsx._mergeConfig();
 
     expect(config).to.be.an('object')
-      .to.deep.include({ skip: 1, name: 'it_ноутбуки', categorize: true });
+      .to.eql({
+        "skip": 1,
+        "skipLast": 0,
+        "header": 1,
+        "categorize": true,
+        "index": false,
+        "name": "it_ноутбуки"
+    });
   });
 
   it('firstRow: should skip 1 row and return integer value of first not empty row in excel', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.firstRow();
@@ -58,21 +66,21 @@ describe('XLSX Driver', function() {
     expect(i).to.equal(0);
   });
 
-  it('lastRow: should return integer value of last row in excel', async () => {
+  it('lastRow: should skip 1 row and return integer value of last row in excel', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.lastRow();
 
-    expect(i).to.equal(10);
+    expect(i).to.equal(9);
   });
 
   it('firstColumn: should return integer values of first column', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.firstColumn();
@@ -83,7 +91,7 @@ describe('XLSX Driver', function() {
   it('lastColumn: should return integer values of last column', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
 
     let i = await xlsx.lastColumn();
@@ -91,30 +99,28 @@ describe('XLSX Driver', function() {
     expect(i).to.equal(8);
   });
 
-  it('read(row): should return row (array)', async () => {
+  it('read(row): should return header in json format when read first row', async () => {
     let xlsx = new Xlsx(consts.config);
 
-    xlsx._config = 'south-defect';
+    xlsx.source = consts.config.path;
     xlsx.sheetName = 'it_ноутбуки';
 
     let row = await xlsx.read(0);
-    //console.log(row);
 
-    expect(row).to.be.an('array')
-      .that.includes('Код')
-      .that.includes('Модель');
+    expect(row).to.be.an('object')
+      .to.deep.include({ "Код": "Код", "Модель": 'Модель', "Цена гр": "Цена гр" });
   });
 
   it('rows: should return indexed rows', async () => {
-    consts.config["south-defect"]["default"]["skip"] = 1;
-    consts.config["south-defect"]["default"]["index"] = 'Код товара';
-    consts.config["south-defect"]["path"] = __dirname + '/../../../data/laptops.xlsx';
+    consts.config["default"]["skip"] = 1;
+    consts.config["default"]["index"] = 'Код товара';
+    consts.config["path"] = __dirname + '/../../../data/laptops.xlsx';
 
-    let xlsx = new Xlsx(consts.config["south-defect"]);
+    let xlsx = new Xlsx(consts.config);
 
-    xlsx.source = consts.config["south-defect"]["path"];
+    xlsx.source = consts.config["path"];
 
-    let index = await xlsx.index();
+    let index = await xlsx.getIndex();
     //console.log(row);
 
     expect(index)

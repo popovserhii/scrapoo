@@ -19,6 +19,7 @@ class ConfigHandler {
   //  return this._source;
   //}
 
+
   process(value, fieldConfig) {
     value = this.processFilters(value, fieldConfig);
     value = this.processPrepare(value, fieldConfig);

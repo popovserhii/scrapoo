@@ -30,7 +30,7 @@ describe('Combiner', () => {
             },
             "omit": {
               "fields": {
-                "is_in_stock": "немає в наявності"
+                "is_in_stock": "out of stock"
               }
             },
             "newly": {
@@ -60,30 +60,36 @@ describe('Combiner', () => {
   });
 
   it('run: should combine omitted items and mark as "out of stock"', async () => {
+    let dataProvider = {
+      files: [
+        [ // first file
+          {"Код": "Код", "Назва": "Назва", "NS W300": "NS W300"},
+          {"Код": "2974651", "Назва": "ноутбук 14FMI/i5-7200U", "NS W300": "in stock"},
+          {"Код": "2852963", "Назва": "ноутбук 14M/i7-6500U", "NS W300": "out of stock"},
+        ],
+        [ // second file
+          {"Код": "Код", "Назва": "Назва", "NS W300": "NS W300"},
+          {"Код": "2974651", "Назва": "ноутбук 14FMI/i5-7200U", "NS W300": "out of stock"},
+          {"Код": "2852963", "Назва": "ноутбук 14M/i7-6500U", "NS W300": "in stock"},
+          {"Код": "2879423", "Назва": "ноутбук 14M/i3-6100U", "NS W300": "in stock"}
+        ]
+      ]
+  };
+
     let config = {
       "pool": "shop-it",
       "type": "combiner",
 
-
       "file": [
         {
-          "path": "data/shop-it/south-contract/pprice_list-*.xls",
+          "path": ['path/to/file-one.xlsx', 'path/to/file-two.xlsx'],
           "default": {
             "index": "Код",
-            "fields": {
-              "code": "Код",
-              "manufacturer": "ТМ",
-              "manufacturer_code": "Артикул",
-              "is_in_stock": "NS W300",
-            },
+            "fields": {"code": "Код", "is_in_stock": "NS W300", "name": {"name": "Назва"}},
             "omit": {
-              "fields": {
-                "is_in_stock": "немає в наявності"
-              }
+              "fields": {"is_in_stock": "out of stock"}
             },
-            "newly": {
-              "separate": true
-            }
+            "newly": {"separate": true}
           },
         },
         /*{
@@ -94,13 +100,29 @@ describe('Combiner', () => {
     };
 
     let combiner = new Combiner(config);
+    sinon.stub(combiner, 'getFileNames').returns(config.file[0].path);
+
+    dataProvider.files.forEach((rows, i) => {
+      let path = config.file[0].path[i];
+      let xlsx = combiner.getXlsx(path, config.file[0]);
+
+      sinon.stub(xlsx, '_getSheets').returns({'Sheet1': {}});
+      sinon.stub(xlsx, '_getSheetNames').returns(['Sheet1']);
+      sinon.stub(xlsx, '_convertRawSheet').returns(rows);
+      sinon.stub(xlsx, '_getFilename');
+      sinon.stub(xlsx, '_getWorkbookReader');
+    });
+
     await combiner.run();
 
     expect(combiner._rows.length)
-      .to.deep.equal(7);
+      .to.deep.equal(3);
 
-    expect(combiner._rows[1])
-      .to.include.members([6349283, 'Мониторы:: 1 :: 1 :: 1 || 4']);
+    expect(combiner._rows).to.eql([
+      {"code": "2974651", "is_in_stock": "in stock", "name": "ноутбук 14FMI/i5-7200U"},
+      {"code": "2852963", "is_in_stock": "out of stock", "name": "ноутбук 14M/i7-6500U"},
+      {"code": "2879423", "is_in_stock": "out of stock", "name": "ноутбук 14M/i3-6100U"}
+    ]);
   });
 
   /*it('run: should convert merged category row to category column', async () => {
