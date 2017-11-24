@@ -8,7 +8,7 @@ class Xlsx extends Abstract {
   constructor(config = null) {
     super();
     this._config = config || {};
-    this._source = config.path;
+    this._source = null;
     this._sheetName = null;
     this._sheetsConfig = null;
     //this._indexes = {};
@@ -114,7 +114,8 @@ class Xlsx extends Abstract {
 
   async _getWorkbookReader() {
     if (!this._wb) {
-      this._wb = XLSX.readFile(await this.getFilename());
+      let filename = await this.getFilename();
+      this._wb = XLSX.readFile(filename);
     }
 
     return this._wb;
