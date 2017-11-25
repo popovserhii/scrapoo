@@ -1,4 +1,4 @@
-const fs = require('fs');
+//const fs = require('fs');
 const d3 = require('d3-dsv');
 const _ = require('lodash');
 const Abstract = require('scraper/output/abstract');

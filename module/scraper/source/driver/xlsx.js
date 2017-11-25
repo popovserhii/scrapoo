@@ -144,7 +144,7 @@ class Xlsx extends Abstract {
         this._sheetsConfig[sheetConfig.name] = _.merge({
           skip: 0,
           skipLast: 0,
-          header: 0,
+          header: 1,
           categorize: false,
           index: false
         }, this._config.default, sheetConfig);
@@ -176,7 +176,8 @@ class Xlsx extends Abstract {
   _prepareSheet(worksheet, sheetConfig) {
     let data = this._convertRawSheet(worksheet, sheetConfig);
 
-    data = _.drop(data, /*1 + */sheetConfig.skip + sheetConfig.header);
+    // drop those first two rows which are empty
+    //data = _.drop(data, /*1 + */sheetConfig.skip + sheetConfig.header);
 
     let filtered = [];
     _.forEach(data, (row, i) => {
@@ -227,7 +228,7 @@ class Xlsx extends Abstract {
         }
 
         // store header names
-        if ((sheetConfig.header >= 0) && row == (/*1 + */sheetConfig.skip + sheetConfig.header)/* && value*/) {
+        if ((sheetConfig.header > 0) && row == (/*1 + *//*sheetConfig.skip + */sheetConfig.header)/* && value*/) {
           if (value) {
             this._headers[col] = value;
           } else {

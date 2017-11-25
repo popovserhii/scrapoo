@@ -38,6 +38,7 @@ class Cli {
     try {
       //let construct = className]);
       //let _config = config[root];
+      config[root]['default'] = config.default;
       let manager = new Construct(config[root]);
       await manager.run(name);
     } catch (e) {

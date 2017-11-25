@@ -21,6 +21,15 @@ class Variably {
   }
 
   /**
+   * Get variable
+   *
+   * @param name
+   */
+  get(name) {
+    return this._variables[name];
+  }
+
+  /**
    * Is parameter stringable variable
    *
    * @param varPattern

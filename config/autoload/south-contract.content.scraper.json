@@ -1,5 +1,5 @@
 {
-  "scraper": {
+  "default": {
     "shop-it": {
       "helper": {
         "filter-price": {
@@ -17,7 +17,10 @@
           }
         }
       }
-    },
+    }
+  },
+
+  "scraper": {
     "south-contract-catalog": {
       "source": {
         "pool": "shop-it",

@@ -12,6 +12,7 @@ class Combiner extends Abstract {
     });*/
   }
 
+
   /*isFirstFile() {
     return 0 === this._current.index;
   }
@@ -52,7 +53,7 @@ class Combiner extends Abstract {
       }
     }
 
-    await this._persist(this._rows, 'Combined', this._config.output.path);
+    //await this._persist(this._rows, 'Combined', this._config.output.path);
   }
 
   async prepare(sheetName) {
@@ -99,9 +100,13 @@ class Combiner extends Abstract {
         this._fields = this.getFields(row, xlsx.config);
 
         if (undefined === prevIndex[indexValue]) { // is new value
-          this._newRows.push(row);
+          //this._newRows.push(row);
+          await this.getOutput('newly').send(row);
         } else { // is similar value
-          this._rows.push(this._fields);
+          //this._rows.push(this._fields);
+          //this.output.send();
+          await this.getOutput().send(this._fields);
+
           delete prevIndex[indexValue];
         }
       }
@@ -112,7 +117,8 @@ class Combiner extends Abstract {
         let omitted = _.has(xlsx.config, 'omit.fields') ? prevXlsx.config.omit.fields : {};
         rows.push(row); // avoid duplicates on next iteration
         this._fields = this.getFields(row, prevXlsx.config);
-        this._rows.push(_.merge(this._fields, omitted));
+        //this._rows.push(_.merge(this._fields, omitted));
+        await this.getOutput().send(_.merge(this._fields, omitted));
       }
 
       // @todo Add preprocessor

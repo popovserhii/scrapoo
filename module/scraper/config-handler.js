@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const config = require(process.cwd() + '/config'); // @todo Improve logic for getting general config. Maybe use cache on required() level
 
 class ConfigHandler {
 
@@ -77,10 +78,13 @@ class ConfigHandler {
     }
 
     //let config = _.merge((this.config.default || {}), (this.config[this.source.config.pool] || {}), this.config[key]);
-    let config = (this.source && _.has(this.source.config, `helper.${key}`)) ? this.source.config.helper[key] : {};
+    //let config = (this.source && _.has(this.source.config, `helper.${key}`)) ? this.source.config.helper[key] : {};
+    let configPool = this.variably.get('config').pool;
+    let configPath = `default.${configPool}.helper.${key}`;
+    let subConfig = (_.has(config, configPath)) ? _.get(config, configPath) : {};
 
     let HelperClass = require('scraper/adapter/helper/' + key);
-    return this.helpers[key] = new HelperClass(this.source, config);
+    return this.helpers[key] = new HelperClass(this.variably, subConfig);
   }
 }
 

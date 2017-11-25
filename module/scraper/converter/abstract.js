@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const path = require('path');
 const globby = require('globby');
 const XLSX = require('xlsx');
 const Variably = require('scraper/variably');
@@ -16,6 +17,7 @@ class Abstract {
     this._row = {};
     this._rows = [];
     this._persisted = {};
+    this._output = {};
 
     if (new.target === Abstract) {
       throw new TypeError('Cannot construct Abstract instances directly');
@@ -32,10 +34,14 @@ class Abstract {
     }
   }
 
+  get config() {
+    return this._config;
+  }
+
   get variably() {
     if (!this._variably) {
       this._variably = new Variably();
-      //this._variably.add('source', this);
+      this._variably.set('config', this.config);
       //this._variably.add('crawler', this.crawler);
     }
 
@@ -50,6 +56,20 @@ class Abstract {
 
     return this._configHandler;
   }
+
+  getOutput(context = 'default') {
+    //let context = context || 'default';
+    if (!this._output[context]) {
+      let config = _.get(this.config, `output.${context}`);
+      let name = path.extname(config.path).substring(1);
+      let Output = require('scraper/output/' + name);
+
+      this._output[context] = new Output(config);
+    }
+
+    return this._output[context];
+  }
+
 
   getData(name) {
 
@@ -111,6 +131,7 @@ class Abstract {
   }
 
   async save() {
+    return false;
     for (let path in this._persisted) {
       let wb = this._persisted[path];
 
@@ -127,7 +148,8 @@ class Abstract {
       let filePath = this.configHandler.process(path, this._config.output.options || {});
       //console.log(filePath);
 
-      XLSX.writeFile(wb, filePath);
+      XLSX.writeFile(wb, filePath, {FS:";"});
+      //XLSX.utils.sheet_to_csv(ws, {FS:"\t"})
     }
   }
 

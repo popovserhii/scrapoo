@@ -13,9 +13,10 @@ class Converter {
     //console.log(config[root][name]);
 
     //let construct = className]);
+    this._config[sourceName]["default"] = this._config.default;
     let converter = new Converter(this._config[sourceName]);
     await converter.run();
-    await converter.save();
+    //await converter.save();
   }
 }
 
