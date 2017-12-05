@@ -6,8 +6,8 @@ const Abstract = require('scraper/adapter/abstract');
 
 class Search extends Abstract {
 
-  constructor(nightmare, config) {
-    super(nightmare, config);
+  constructor(nightmare, configHandler, config) {
+    super(nightmare, configHandler, config);
 
     //this.nightmare = nightmare;
     //this.config = config;

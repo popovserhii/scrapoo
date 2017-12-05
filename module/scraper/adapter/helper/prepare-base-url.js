@@ -3,7 +3,7 @@ let URL = require('url');
 let _ = require('lodash');
 
 class PrepareBaseUrl extends PrepareAbstract {
-  constructor(adapter) {
+  /*constructor(adapter) {
     super(adapter);
     this.options = {};
 
@@ -15,7 +15,7 @@ class PrepareBaseUrl extends PrepareAbstract {
     //} else if (adapter && adapter.nightmare) {
     //  this.setOption('location', adapter.nightmare.url())
     //}
-  }
+  }*/
 
   prepare(relative) {
     let isArray = _.isArray(relative);

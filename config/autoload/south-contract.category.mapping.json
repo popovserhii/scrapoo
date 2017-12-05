@@ -1,10 +1,11 @@
 {
   "scraper": {
     "south-contract-category": {
+      "pool": "shop-it",
       "source": {
         "pool": "shop-it",
         "type": "file",
-        "path": "data/pprice_list.xls",
+        "path": "data/shop-it/south-contract/pprice_list.xls",
         "fields": {
           "manufacturer": "ТМ",
           "manufacturer_code": "Артикул",
@@ -28,15 +29,15 @@
       },
 
       "output": {
-        "path": "data/south-products-category-mapping.csv",
-        "options": {
-          "dateable": false
+        "default": {
+          "path": "data/shop-it/south-contract/products-category-mapping.csv",
+          "options": {
+            "dateable": false
+          }
+        },
+        "problem": {
+          "path": "data/shop-it/south-contract/products-problem.csv"
         }
-      },
-
-      "problemOutput": {
-        "type": "csv",
-        "path": "data/south-products-category-mapping.csv"
       },
 
       "preprocessor": {

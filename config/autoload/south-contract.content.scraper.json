@@ -1,19 +1,21 @@
 {
   "default": {
-    "shop-it": {
-      "helper": {
-        "filter-price": {
-          "fixed": 0,
-          "apply": {
-            "0": "-7",
-            "1": "+20%"
+    "pool": {
+      "shop-it": {
+        "helper": {
+          "filter-price": {
+            "fixed": 0,
+            "apply": {
+              "0": "-7",
+              "1": "+20%"
+            },
+            "minRate": 150
           },
-          "minRate": 150
-        },
-        "filter-in-stock": {
-          "map": {
-            "есть": 1,
-            "нет": 0
+          "filter-in-stock": {
+            "map": {
+              "есть": 1,
+              "нет": 0
+            }
           }
         }
       }
@@ -63,12 +65,12 @@
       ],
 
       "output": {
-        "path": "data/products-south.csv"
-      },
-
-      "problemOutput": {
-        "type": "csv",
-        "path": "data/shop-it-problem-south.csv"
+        "default": {
+          "path": "data/products-south.csv"
+        },
+        "problem": {
+          "path": "data/shop-it-problem-south.csv"
+        }
       },
 
       "preprocessor": {

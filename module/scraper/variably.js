@@ -52,7 +52,7 @@ class Variably {
     let resolved = this._variables[objectName];
 
     if (undefined === resolved) {
-      throw new Error('$' + objectName + ' is not set in Variable object');
+      throw new Error('$' + objectName + ' is not set in Variable Object');
     }
 
     _.each(path, (part) => {

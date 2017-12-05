@@ -26,7 +26,7 @@ class FilterPrice extends FilterAbstract {
     } else {
       price = this._parsePrice(price);
       if (_.has(this.config, 'apply')) {
-        price = this._applyPattern(price, this.config.apply[0]); // get only first "apply" filter
+        price = this._applyPattern(price, _.isString(this.config.apply) ? this.config.apply : this.config.apply[0]); // get only first "apply" filter
       }
     }
 

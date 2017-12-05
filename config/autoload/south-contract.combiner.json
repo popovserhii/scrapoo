@@ -13,9 +13,9 @@
               "sku": "Код",
               "manufacturer_code": "Артикул",
               "price_purchase": "Цена, грн.",
-              "price": {"name": "РРЦ, грн.", "__filter": ["price"]},
-              "qty": {"name": "Остаток Киев, шт.", "__filter": ["number"]},
-              "is_in_stock": {"name": "Склад Киев", "__filter": ["in-stock"]}
+              "price": "РРЦ, грн.",
+              "qty": "Остаток Киев, шт.",
+              "is_in_stock": "Склад Киев"
             },
             "omit": {
               "fields": {"is_in_stock": "0", "qty": 0}
@@ -36,6 +36,15 @@
           "options": {
             "dateable": false
           }
+        }
+      },
+      "preprocessor": {
+        "fields": {
+          "sku": "$fields.sku",
+          "manufacturer_code": "$fields.manufacturer_code",
+          "price": {"value": ["$fields.price", "$fields.price_purchase"], "__filter": ["price"]},
+          "qty": {"value": "$fields.qty", "__filter": ["number"]},
+          "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]}
         }
       }
     }

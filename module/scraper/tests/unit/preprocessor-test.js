@@ -1,14 +1,51 @@
 require('app-module-path').addPath(process.cwd() + '/module');
 
-let chai = require('chai');
-let sinon = require('sinon');
-let expect = chai.expect;
-let fs = require('fs');
-let File = require('scraper/source/file');
-let Preprocessor = require('scraper/preprocessor');
+const chai = require('chai');
+const sinon = require('sinon');
+const expect = chai.expect;
+//const fs = require('fs');
+const File = require('scraper/source/file');
+const Preprocessor = require('scraper/preprocessor');
+const ConfigHandler = require('scraper/config-handler');
+const Variably = require('scraper/variably');
 //let Csv = require('scraper/output/csv');
 
 describe('Preprocessor', () => {
+
+  it('process: should handle variable of field set as string', () => {
+    let preprocessorConfig = {
+      "fields": {
+        "code": "$fields.code",
+      }
+    };
+
+    let variably = new Variably();
+    let configHandler = new ConfigHandler(variably);
+    let pre = new Preprocessor(configHandler, preprocessorConfig);
+    sinon.stub(configHandler, 'globalConfig').get(() => {});
+
+    let fields = pre.process({"code": '12345'});
+
+    expect(fields).to.deep.eql({"code": "12345"});
+  });
+
+  it('process: should handle variable of field set as plain object', () => {
+    let preprocessorConfig = {
+      "fields": {
+        "code": {"value": "$fields.code"}
+      }
+    };
+
+    let variably = new Variably();
+    let configHandler = new ConfigHandler(variably);
+    let pre = new Preprocessor(configHandler, preprocessorConfig);
+    sinon.stub(configHandler, 'globalConfig').get(() => {});
+
+    let fields = pre.process({"code": '12345'});
+
+    expect(fields).to.deep.eql({"code": "12345"});
+  });
+
   it('process: should replace variables pattern to value', () => {
     let config = { // preprocessor config
       "fields": {
@@ -69,14 +106,22 @@ describe('Preprocessor', () => {
       }
     };
 
-    let fields = {};
 
     let file = new File({}, configSource);
+
     file._headerMap = {'Категорія': 1, 'Під категорія': 3};
     file._row = ['Test item', 'IT ACCESSORIES', 'enable', 'NOTEBOOK'];
 
-    let pre = new Preprocessor(file, config);
-    fields = pre.process(fields);
+    sinon.stub(file, 'getOutput').returns({'send': () => {}});
+
+    let variably = new Variably();
+    variably.set('source', file);
+    variably.set('config', {}/*file*/);
+
+    let configHandler = new ConfigHandler(variably);
+
+    let pre = new Preprocessor(configHandler, config);
+    let fields = pre.process({});
 
     expect(fields)
       .to.deep.equal({
@@ -102,18 +147,67 @@ describe('Preprocessor', () => {
       }
     };
 
-    let fields = {};
-
     let file = new File({}, configSource);
     file._headerMap = {'Категорія': 1, 'Під категорія': 3};
     file._row = ['Test item', 'IT ACCESSORIES', 'enable', 'NOTEBOOK'];
+    sinon.stub(file, 'getOutput').returns({'send': () => {}});
 
-    let pre = new Preprocessor(file, config);
-    fields = pre.process(fields);
+    let variably = new Variably();
+    variably.set('source', file);
+
+    let configHandler = new ConfigHandler(variably);
+
+    let pre = new Preprocessor(configHandler, config);
+    let fields = pre.process({});
 
     expect(fields)
       .to.deep.equal({
         "categories": "IT ACCESSORIES:: 1 :: 1 :: 1 || 4/NOTEBOOK:: 1 :: 1 :: 1 || 4",
       });
   });
+
+  it('process: should merge config in right order, preprocessor fields have high priority', () => {
+    let config = {
+      "default": {
+        "shop-it": {
+          "helper": {
+            "filter-in-stock": {
+              "map": {"yes": 1, "no": 0}
+            }
+          }
+        }
+      },
+      "source": {
+        "pool": "shop-it",
+      }
+    };
+
+    let preprocessorConfig = {
+      "fields": {
+        "code": "$fields.code",
+        "name": "$fields.name",
+        "is_in_stock": {"value": ["$fields.is_in_stock"], "__filter": ["shift", "in-stock"]}
+      }
+    };
+
+    let variably = new Variably();
+    variably.set('config', config.source);
+
+    let configHandler = new ConfigHandler(variably);
+    sinon.stub(configHandler, 'globalConfig').get(() => config);
+    let pre = new Preprocessor(configHandler, preprocessorConfig);
+    let fields = pre.process({
+      "code": '12345',
+      "name": 'Red Hat',
+      "is_in_stock": 'yes'
+    });
+
+    expect(fields)
+      .to.deep.eql({
+        "code": '12345',
+        "name": 'Red Hat',
+        "is_in_stock": 1
+    });
+  });
+
 });

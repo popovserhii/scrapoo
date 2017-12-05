@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const d3 = require('d3-dsv');
 const _ = require('lodash');
 const dateFormat = require('dateformat');
 
@@ -9,7 +8,8 @@ class Abstract {
   constructor(config) {
     this._config = _.merge({
       options: {
-        dateable: true
+        dateable: false,
+        bom: false
       }
     }, config);
 
@@ -22,9 +22,9 @@ class Abstract {
     });
 
     // @todo improve stats implementation
-    this.stats = fs.existsSync(this._pathname)
-      ? fs.statSync(this._pathname)
-      : {};
+    /*this.stats = await fs.existsSync(this._pathname)
+      ? await fs.statSync(this._pathname)
+      : {};*/
     this.stats = 0;
 
     /**
@@ -43,6 +43,17 @@ class Abstract {
 
   get output() {
     return this.file;
+  }
+
+  async getStats() {
+    if (this._stats) {
+      this._stats = await fs.existsSync(this._pathname)
+        ? await fs.statSync(this._pathname)
+        : {};
+      //this.stats = 0;
+    }
+
+    return this._stats;
   }
 
   _preparePath(filePath) {

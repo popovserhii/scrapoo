@@ -3,7 +3,8 @@ const path = require('path');
 const globby = require('globby');
 const XLSX = require('xlsx');
 const Variably = require('scraper/variably');
-const ConfigHandler = require('scraper/config-handler');
+const ConfigHandler = require('scraper/core/config-handler');
+const Preprocessor = require('scraper/core/preprocessor');
 const Xlsx = require('scraper/source/driver/xlsx');
 
 //const argv = require('minimist')(process.argv.slice(2));
@@ -16,8 +17,10 @@ class Abstract {
     this._xlsx = {};
     this._row = {};
     this._rows = [];
-    this._persisted = {};
+    this._fields = {};
+    //this._persisted = {};
     this._output = {};
+    this._preprocessor = null;
 
     if (new.target === Abstract) {
       throw new TypeError('Cannot construct Abstract instances directly');
@@ -57,6 +60,36 @@ class Abstract {
     return this._configHandler;
   }
 
+  get preprocessor() {
+    if (!this._preprocessor) {
+      this._preprocessor = new Preprocessor(this.configHandler, this.config.preprocessor);
+    }
+
+    return this._preprocessor;
+  }
+
+  getData(name) {
+    //if (undefined !== this['_' + name]) {
+      return this['_' + name];
+    //}
+
+    //return this._fields[name];
+  }
+
+  getXlsx(filePath, config) {
+    if (!this._xlsx[filePath]) {
+      this._xlsx[filePath] = new Xlsx(config);
+      this._xlsx[filePath].source = filePath;
+    }
+
+    return this._xlsx[filePath];
+  }
+
+  /**
+   * @todo use mixin for remove duplicates from here and source/abstract.js
+   * @param context
+   * @returns {*}
+   */
   getOutput(context = 'default') {
     //let context = context || 'default';
     if (!this._output[context]) {
@@ -70,89 +103,53 @@ class Abstract {
     return this._output[context];
   }
 
-
-  getData(name) {
-
-    return this['_' + name];
+  async getFileNames(paths) {
+    return await globby(paths)/*.then(paths => {
+      return paths.shift();
+    });*/
   }
 
   async run(sheetName = null) {
-    for (let i in this._config.sheet) {
+    this.variably.set(_.lowerFirst(this.constructor.name), this);
 
-      if (sheetName && sheetName !== this._config.sheet[i].name) {
+    this._rows = [];
+
+    for (let i in this._config.file) {
+      let paths = _.castArray(this._config.file[i].path);
+      let fileNames = await this.getFileNames(paths);
+      for (let f = 0; f < 1; f++) { // iterate only over first file on this step
+        this._current = {
+          index: this._xlsx.length,
+          config: this._config.file[i],
+          fileNames: fileNames,
+          xlsx: this.getXlsx(fileNames[f], this._config.file[i])
+        };
+
+        await this.prepare(sheetName);
+      }
+
+      // @todo Remove this. It is quick realization for price-list
+      if (_.isFunction(this.getOutput()._save)) {
+        await this.getOutput()._save();
+      }
+    }
+
+
+  }
+
+  async prepare(sheetName) {
+    let sheets = _.castArray(this._current.config.sheet);
+    for (let i in sheets) {
+      let currSheetName = sheets[i] ? sheets[i].name : undefined;
+
+      //if (sheetName && sheetName !== this._config.sheet[i].name) {
+      if (sheetName && sheetName !== currSheetName) {
         continue;
       }
 
-      await this.prepare(this._config.sheet[i].name);
+      await this._prepareSheet(currSheetName);
     }
   }
-
-  getXlsx(filePath, config) {
-    if (!this._xlsx[filePath]) {
-      this._xlsx[filePath] = new Xlsx(config);
-      this._xlsx[filePath].source = filePath;
-    }
-
-    return this._xlsx[filePath];
-  }
-
-  /**
-   * If need save rows to other filer set _newWorkbook to null, its create new file
-   *
-   * @returns object
-   */
-  getNewWorkbook() {
-    if (!this._newWorkbook) {
-      this._newWorkbook = {
-        SheetNames: [],
-        Sheets: {}
-      }
-    }
-
-    return this._newWorkbook;
-  }
-
-  async _persist(rows, sheetName, path) {
-    // @todo try to use json_to_sheet instead
-
-    //XLSX.writeFile(workbook, 'out.xlsb');
-    //XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary'})
-
-    // prepare for save
-    let wb = this.getNewWorkbook();
-    //let ws = XLSX.utils.aoa_to_sheet(this._rows);
-    let ws = XLSX.utils.json_to_sheet(rows);
-
-    // add worksheet to workbook
-    wb.SheetNames.push(sheetName);
-    wb.Sheets[sheetName] = ws;
-
-    this._persisted[path] = wb;
-  }
-
-  async save() {
-    return false;
-    for (let path in this._persisted) {
-      let wb = this._persisted[path];
-
-     /* // prepare for save
-      let wb = this.getNewWorkbook();
-      //let ws = XLSX.utils.aoa_to_sheet(this._rows);
-      let ws = XLSX.utils.json_to_sheet(rows);
-
-      // add worksheet to workbook
-      wb.SheetNames.push(this._xlsx.sheetName);
-      wb.Sheets[this._xlsx.sheetName] = ws;*/
-
-      // write file
-      let filePath = this.configHandler.process(path, this._config.output.options || {});
-      //console.log(filePath);
-
-      XLSX.writeFile(wb, filePath, {FS:";"});
-      //XLSX.utils.sheet_to_csv(ws, {FS:"\t"})
-    }
-  }
-
 }
 
 module.exports = Abstract;

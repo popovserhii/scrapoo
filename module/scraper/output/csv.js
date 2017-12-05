@@ -14,7 +14,11 @@ class Csv extends Abstract {
       if (!this.stats) {
         let csv = dsv.formatRows([_.keys(row[r])]);
 
-        await this.file.write(csv + '\n');
+        if (this._config.options.bom) {
+          csv = '\ufeff' + csv;
+        }
+
+        await this.file.write(/*'\ufeff' + */csv + '\n');
         this.stats++; // feature
       }
 

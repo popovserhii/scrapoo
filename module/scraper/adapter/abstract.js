@@ -1,8 +1,6 @@
 const cheerio = require('cheerio');
 const URL = require('url');
 const _ = require('lodash');
-//const s = require('sprintf-js');
-//const ConfigHandler = require('scraper/config-handler');
 const Entities = require('html-entities').Html5Entities;
 
 const entities = new Entities();
@@ -42,7 +40,7 @@ class Abstract {
 
       //console.log('module/scraper/adapter/abstract.js', this.nightmare.url());
 
-      this._configHandler.getHelper('base-url', 'prepare').setConfig('location', this.location);
+      this._configHandler.getHelper('base-url', 'prepare').stashConfig['location'] = this.location;
     //}
 
     return this._configHandler;
@@ -94,23 +92,11 @@ class Abstract {
 
     let fields = $(this.config.group.selector).map((i, element) => {
       let group = $(element);
-      //for (let name in this.config.fields) {
-      //console.log(group.attr('class'));
-
       let fields = {};
       for (let name in this.config.group.fields) {
         this.currField = name;
         let fieldConfig = this.currFieldConfig;
-        //let field = this.config.group.fields[name];
-
         fields[name] = this.getValue(group.find(fieldConfig.selector));
-
-        //console.log('fields[name]', fields[name], name, fieldConfig.selector/*, group.find(fieldConfig.selector)*/);
-
-
-        //fields[name] = this._processFilters(fields[name], this.currFieldConfig);
-        //fields[name] = this._processPrepare(fields[name], this.currFieldConfig);
-
         fields[name] = this.configHandler.process(fields[name], this.currFieldConfig);
 
         this.currField = '';
@@ -122,14 +108,9 @@ class Abstract {
     return fields;
   }
 
-
-
   getValue(elm) {
     let fieldConfig = this.currFieldConfig;
     let val = undefined;
-
-    //console.log(elm.length);
-
     if (elm.length > 1) {
       let values = [];
       elm.each((i, e) => {

@@ -14,9 +14,9 @@ class Abstract {
 
     this._config = _.merge({"source": {"driver": {"file": "scraper/source/driver/xlsx"}}}, config);
 
-    this._crawler = null;
-    this._output = null;
-    this._outputProblem = null;
+    this._crawlers = {};
+    this._output = {};
+    //this._outputProblem = null;
     this._preprocessor = null;
     this._configHandler = null;
     this._nextUrl = null;
@@ -92,10 +92,11 @@ class Abstract {
   }
 
   getCrawler(config) {
-    let Adapter = require('scraper/adapter/' + config.name);
-    let adapter = new Adapter(this.nightmare, this.configHandler, config); // retrieve hotline etc. adapter
-
-    return adapter;
+    if (!this._crawlers[config.name]) {
+      let Adapter = require('scraper/adapter/' + config.name);
+      this._crawlers[config.name] = new Adapter(this.nightmare, this.configHandler, config); // retrieve hotline etc. adapter
+    }
+    return this._crawlers[config.name];
   }
 
   set output(output) {
@@ -104,7 +105,7 @@ class Abstract {
     return this;
   }
 
-  get output() {
+  /*get output() {
     if (!this._output) {
       let name = path.extname(this.config.output.path).substring(1);
       let Output = require('scraper/output/' + name);
@@ -114,9 +115,22 @@ class Abstract {
     }
 
     return this._output;
+  }*/
+
+  getOutput(context = 'default') {
+    //let context = context || 'default';
+    if (!this._output[context]) {
+      let config = _.get(this.config, `output.${context}`);
+      let name = path.extname(config.path).substring(1);
+      let Output = require('scraper/output/' + name);
+
+      this._output[context] = new Output(config);
+    }
+
+    return this._output[context];
   }
 
-  set outputProblem(output) {
+  /*set outputProblem(output) {
     this._outputProblem = output;
 
     return this;
@@ -128,7 +142,7 @@ class Abstract {
     }
 
     return this._outputProblem;
-  }
+  }*/
 
   set driver(driver) {
     this._driver = driver;
@@ -148,8 +162,9 @@ class Abstract {
   get variably() {
     if (!this._variably) {
       this._variably = new Variably();
-      this._variably.add('source', this);
-      this._variably.add('crawler', this.crawler);
+      this._variably.set('source', this);
+      this._variably.set('config', this.config);
+      this._variably.set('crawler', this.crawler);
     }
 
     return this._variably;
@@ -157,7 +172,7 @@ class Abstract {
 
   get preprocessor() {
     if (!this._preprocessor) {
-      this._preprocessor = new Preprocessor(this.variably, this.configHandler, this.config.preprocessor);
+      this._preprocessor = new Preprocessor(this.configHandler, this.config.preprocessor);
     }
 
     return this._preprocessor;
@@ -217,11 +232,11 @@ class Abstract {
               }
 
               fields = this.preprocessor.process(fields);
-              await this.output.send(fields);
+              await this.getOutput().send(fields);
             } else {
               // fields not found with any crawler
               // write to file about problem product
-              this.outputProblem.send({
+              this.getOutput('problem').send({
                 value: searchable.join(','),
                 message: 'Not found'
               });
@@ -234,7 +249,7 @@ class Abstract {
       } else if (_.isUndefined(this.config.source.searchKeys)) {
         // run preprocessor skip crawling
         let fields = this.preprocessor.process({});
-        await this.output.send(fields);
+        await this.getOutput().send(fields);
       }
     } catch (e) {
       if (_.isString(e)) {

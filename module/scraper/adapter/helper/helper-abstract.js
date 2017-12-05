@@ -5,13 +5,23 @@ class HelperAbstract {
     this.source = source;
 
     // define getter for default config
-    this.config = (undefined === this.defaultConfig)
+    this.stashConfig = (undefined === this.defaultConfig)
       ? config
-      : _.merge(this.defaultConfig, config);
+      : _.merge({}, this.defaultConfig, config);
+
+    // @see https://stackoverflow.com/a/34073743/1335142
+    this.config = {... this.stashConfig};
+  }
+
+  resetConfig() {
+    this.config = {... this.stashConfig};
+
+    return this;
   }
 
   mergeConfig(config) {
-    this.config = _.merge(this.config, config);
+    //this.config = _.merge(this.config, config);
+    _.merge(this.config, config);
 
     return this;
   }
@@ -25,7 +35,7 @@ class HelperAbstract {
   getConfig(key) {
     return this.config.hasOwnProperty(key)
       ? this.config[key]
-      : false;
+      : this.config;
   }
 }
 

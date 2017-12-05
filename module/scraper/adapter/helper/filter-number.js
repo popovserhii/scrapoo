@@ -1,4 +1,4 @@
-const cheerio = require('cheerio');
+const _ = require('lodash');
 let FilterAbstract = require('./filter-abstract');
 
 class FilterNumber extends FilterAbstract {
@@ -15,9 +15,11 @@ class FilterNumber extends FilterAbstract {
     //console.log('module/scraper/adapter/helper/filter-number.js', value);
     // return only first set of number
     let number = 0;
-    let match = value.match(/\d+/);
-    if (match) {
-      number = match[0];
+    if (_.isString(value)) {
+      let match = value.match(/\d+/);
+      if (match) {
+        number = match[0];
+      }
     }
 
     return number;
