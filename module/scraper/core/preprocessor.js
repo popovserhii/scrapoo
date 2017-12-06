@@ -49,9 +49,10 @@ class Preprocessor {
 
     let collection = this.cast(fields);
 
-    collection = _.map(collection, fields => {
+    for (let f in collection) {
       let preFields = {};
-      _.each(this.config.fields, (varPattern, name) => {
+      for (let name in this.config.fields) {
+        let varPattern = this.config.fields[name];
         if (_.isPlainObject(varPattern)) { // complex variable with __filter & __prepare
           let values = _.map(this.cast(varPattern.value), value => {
             return this.variably.is(value)
@@ -64,11 +65,10 @@ class Preprocessor {
         } else {
           preFields[name] = varPattern;
         }
-      });
-      return _.assign({}, fields, preFields);
-    });
+      }
+      collection[f] = _.assign({}, collection[f], preFields);
+    }
 
-    //return isArray ? collection : collection.shift();
     return this.back(collection);
   }
 }

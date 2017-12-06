@@ -30,8 +30,8 @@ class Combiner extends Abstract {
         if (undefined === prevIndex[indexValue]) { // is new value
           await this.getOutput('newly').send(row);
         } else { // is similar value
-          this._fields = this.getFields(row, xlsx.config);
-          this._fields = this.preprocessor.process(this._fields);
+          this._fields = await this.getFields(row, xlsx.config);
+          this._fields = await this.preprocessor.process(this._fields);
           await this.getOutput().send(this._fields);
 
           delete prevIndex[indexValue];
@@ -44,20 +44,21 @@ class Combiner extends Abstract {
         let omitted = _.has(xlsx.config, 'omit.fields') ? prevXlsx.config.omit.fields : {};
         rows.push(row); // avoid duplicates on next iteration
 
-        this._fields = this.getFields(row, prevXlsx.config);
-        this._fields = this.preprocessor.process(_.merge(this._fields, omitted));
+        this._fields = await this.getFields(row, prevXlsx.config);
+        this._fields = await this.preprocessor.process(_.merge(this._fields, omitted));
         await this.getOutput().send(_.merge(this._fields, omitted));
       }
     }
   }
 
-  getFields(row, config) {
+  async getFields(row, config) {
     let fields = {};
-    _.each(config.fields, (field, name) => {
-      fields[name] = _.isPlainObject(field)
-        ? this.configHandler.process(row[field.name], field)
-        : row[field];
-    });
+    for (let name in config.fields) {
+      let field = config.fields[name];
+        fields[name] = _.isPlainObject(field)
+          ? await this.configHandler.process(row[field.name], field)
+          : row[field];
+    }
 
     return fields;
   }

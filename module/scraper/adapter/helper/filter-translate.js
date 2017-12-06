@@ -4,22 +4,27 @@ const Translate = require('google-translate-api');
 
 class FilterTranslate extends FilterAbstract {
 
-    async filter(value) {
-        let translated = await Translate(value, {to: 'ru'});
+  async filter(value) {
+    let translated = await Translate(value, {to: 'ru'});
 
-        return translated.text;
-    }
-//все
+    //translated = Promise.all(translated).then(function () {
+    //  return translated;
+    //});
 
- /* filter(value) {
-
-      return Translate(value, {to: 'ru'}).then(this.res);
-
+    return translated.text;
   }
 
-  res(value) {
-      return value.text;
-  }*/
+//все
+
+  /* filter(value) {
+
+       return Translate(value, {to: 'ru'}).then(this.res);
+
+   }
+
+   res(value) {
+       return value.text;
+   }*/
 }
 
 module.exports = FilterTranslate;
