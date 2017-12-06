@@ -54,19 +54,6 @@ On the top is `default`
 }
 ```
 
-/*- specific by manager
-```
-{
-  "scraper": {
-    "default": {
-       "your-pool": {
-           // custom configuration here
-       }
-     }
-  }
-}
-```*/
-
 - specific by task
 ```
 {
@@ -101,13 +88,42 @@ On the top is `default`
   }
 }
 ```
+
 Configuration is merged in the order shown above, **specific by helper** wins. 
 
-
 ### General config keys information
+
     - for "path" allowed next formats:
     -- string: "path": "path/to/file.ext"
     -- json: "path": {"name": "path/to/file.ext"}
     -- array: "path": ["path/to/file.ext", "path/to/file2.ext"]
     -- array combination: "path": [{"name": "path/to/file.ext"}, "path/to/file2.ext"]
     -- glob pattern: in all above config can be used glob pattern 
+
+## Helpers
+### Price Helper
+`apply` option allows carry out different arithmetic operations, such as add or subtract some part of price.
+Available all mathematics operation: "+", "-", "*", "/" and "%" (percent) operation.
+
+* `{"apply": "-7"}` - subtract 7 from price
+* `{"apply": "+10%"}` - add 10 percent to price, and etc.
+
+Also is possibility to pass server price and base on that order apply different conditions.
+```
+"field_name": {
+    "value": ["$source.price", "$source.price_purchase"], 
+    "__filter": [
+        {
+            "name": "price", 
+            "apply": {"0": "-7", "1": "+20%"}
+        }
+    ]
+}
+```
+Under such circumstances first ($source.price) price is checked and if it less than zero then second ($source.price_purchase) price is handled.
+Index number is important in `apply` config.
+
+`minRate` option allows set minimal price for which you can apply conditions above.
+
+`fixed` option allows specifying quantity of numbers after the point.  
+ 

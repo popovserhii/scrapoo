@@ -11,6 +11,17 @@
             },
             "minRate": 150
           },
+          "filter-price-new": {
+            "fixed": 0,
+            "apply": {
+              "0": {
+                "rule": [
+
+              ]},
+              "1": "+20%"
+            },
+            "minRate": 150
+          },
           "filter-in-stock": {
             "map": {
               "есть": 1,
