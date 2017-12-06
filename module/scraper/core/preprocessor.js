@@ -41,7 +41,7 @@ class Preprocessor {
     return this._cast.pop() ? array : array.shift();
   }
 
-  process(fields) {
+  async process(fields) {
     this.variably.set('fields', fields);
 
     //let isArray = _.isArray(fields);
@@ -58,7 +58,7 @@ class Preprocessor {
               ? this.variably.process(value)
               : value;
           });
-          preFields[name] = this.configHandler.process(this.back(values), varPattern);
+          preFields[name] = await this.configHandler.process(this.back(values), varPattern);
         } else if (this.variably.is(varPattern)) {
           preFields[name] = this.variably.process(varPattern);
         } else {

@@ -15,7 +15,9 @@
               "price_purchase": "Цена, грн.",
               "price": "РРЦ, грн.",
               "qty": "Остаток Киев, шт.",
-              "is_in_stock": "Склад Киев"
+              "is_in_stock": "Склад Киев",
+              "subgroup": "Подгруппа",
+              "name": "Наименование укр."
             },
             "omit": {
               "fields": {"is_in_stock": "0", "qty": 0}
@@ -44,7 +46,8 @@
           "manufacturer_code": "$fields.manufacturer_code",
           "price": {"value": ["$fields.price", "$fields.price_purchase"], "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
-          "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]}
+          "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]},
+          "name": {"value": "$fields.name", "__filter": [{"name": "translate", "config": {}}]}
         }
       }
     }

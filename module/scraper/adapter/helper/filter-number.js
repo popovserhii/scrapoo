@@ -2,10 +2,6 @@ const _ = require('lodash');
 let FilterAbstract = require('./filter-abstract');
 
 class FilterNumber extends FilterAbstract {
-  constructor(adapter) {
-    super();
-    this.source = adapter;
-  }
 
   /**
    * @see https://stackoverflow.com/a/10003709

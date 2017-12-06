@@ -49,7 +49,8 @@
     "sprintf-js": "^1.1.1",
     "text": "github:requirejs/text#latest",
     "url": "^0.11.0",
-    "xlsx": "^0.11.6"
+    "xlsx": "^0.11.6",
+    "google-translate-api": "2.3.0"
   },
   "peerDependencies": {},
   "devDependencies": {
