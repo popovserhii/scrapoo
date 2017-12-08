@@ -47,7 +47,7 @@
           "price": {"value": ["$fields.price", "$fields.price_purchase"], "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
           "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]},
-          "name": {"value": "$fields.name", "__filter": [{"name": "translate", "config": {}}]}
+          "name": {"value": "$fields.name", "__filter": [{"name": "translate", "config": {"from": "uk", "to":"en"}}]}
         }
       }
     }

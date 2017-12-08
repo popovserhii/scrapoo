@@ -5,26 +5,9 @@ const Translate = require('google-translate-api');
 class FilterTranslate extends FilterAbstract {
 
   async filter(value) {
-    let translated = await Translate(value, {to: 'ru'});
-
-    //translated = Promise.all(translated).then(function () {
-    //  return translated;
-    //});
-
+    let translated = await Translate(value, {from: this.config.from, to: this.config.to});
     return translated.text;
   }
-
-//все
-
-  /* filter(value) {
-
-       return Translate(value, {to: 'ru'}).then(this.res);
-
-   }
-
-   res(value) {
-       return value.text;
-   }*/
 }
 
 module.exports = FilterTranslate;
