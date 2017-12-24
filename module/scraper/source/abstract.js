@@ -1,14 +1,20 @@
 const fs = require('fs');
 const _ = require('lodash');
 const path = require('path');
+const Nightmare = require('nightmare');
+
 //let Csv = require('scraper/output/csv');
 const Problem = require('scraper/output/problem');
-const Preprocessor = require('scraper/preprocessor');
-const ConfigHandler = require('scraper/config-handler');
+const Preprocessor = require('scraper/core/preprocessor');
+const ConfigHandler = require('scraper/core/config-handler');
 const Variably = require('scraper/variably');
 
 class Abstract {
   constructor(nightmare, config) {
+
+    if (!nightmare) {
+
+    }
     this._nightmare = nightmare;
     //this._config = config || {};
 

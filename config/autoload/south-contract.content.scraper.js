@@ -1,27 +1,8 @@
-{
+module.exports = {
   "default": {
     "pool": {
       "shop-it": {
         "helper": {
-          "filter-price": {
-            "fixed": 0,
-            "apply": {
-              "0": "-7",
-              "1": "+20%"
-            },
-            "minRate": 150
-          },
-          "filter-price-new": {
-            "fixed": 0,
-            "apply": {
-              "0": {
-                "rule": [
-
-              ]},
-              "1": "+20%"
-            },
-            "minRate": 150
-          },
           "filter-in-stock": {
             "map": {
               "есть": 1,
@@ -35,8 +16,9 @@
 
   "scraper": {
     "south-contract-catalog": {
+      "pool": "shop-it",
+
       "source": {
-        "pool": "shop-it",
         "type": "file",
         "path": "data/pprice_list.xls",
         "searchKeys": {"name": "Полное описание", "__filter": ["get:hyperlink"]},
@@ -110,4 +92,4 @@
       }
     }
   }
-}
+};

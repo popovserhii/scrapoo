@@ -1,7 +1,4 @@
 class CoreManagerFactory {
-  /*constructor(container) {
-    this._container = container;
-  }*/
 
   static create(container, name) {
     let configer = container.get('configer');

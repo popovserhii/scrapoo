@@ -1,8 +1,8 @@
 const _ = require('lodash');
 
 class HelperAbstract {
-  constructor(source = {}, config = {}) {
-    this.source = source;
+  constructor(variably = {}, config = {}) {
+    this.variably = variably;
 
     // define getter for default config
     this.stashConfig = (undefined === this.defaultConfig)

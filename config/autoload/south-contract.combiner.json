@@ -12,8 +12,10 @@
             "fields": {
               "sku": "Код",
               "manufacturer_code": "Артикул",
+              "name": "Наименование укр.",
               "price_purchase": "Цена, грн.",
               "price": "РРЦ, грн.",
+              "manufacturer": "ТМ",
               "qty": "Остаток Киев, шт.",
               "is_in_stock": "Склад Киев"
             },
@@ -42,7 +44,8 @@
         "fields": {
           "sku": "$fields.sku",
           "manufacturer_code": "$fields.manufacturer_code",
-          "price": {"value": ["$fields.price", "$fields.price_purchase"], "__filter": ["price"]},
+          "price_purchase": {"value": "$fields.price_purchase"},
+          "price": {"value": "$fields.price", "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
           "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]}
         }

@@ -116,7 +116,7 @@ class Scraper /*extends mix(Object).with(ConfigManageMixin)*/ {
         //console.log(currConfig.source);
         //let source = new Source(nightmare, currConfig);
         //let source = this.s;
-        let source = this.factory.create(this.config[name].type, name);
+        let source = this.factory.create(this.config[name].source.type, name);
 
 
         await source.start();

@@ -1,4 +1,5 @@
 //const File = require('../file');
+//const Nightmare = require('nightmare');
 
 class SourceFactory {
   constructor(container) {
@@ -7,6 +8,7 @@ class SourceFactory {
 
   create(type, task) {
     let configer = this._container.get('configer');
+    //let nightmare = this._container.get('nightmare');
     let config = configer.manageConfig('scraper', task);
 
     let Source = require('scraper/source/' + type);

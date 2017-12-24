@@ -76,7 +76,7 @@ class File extends Abstract {
       //}
 
       //if (searchable.length) {
-        this.nightmare.useragent(useragent.getRandom());
+        //this.nightmare.useragent(useragent.getRandom()); // @todo exclude to abstract.js
         await this.process(searchable);
       //}
     }

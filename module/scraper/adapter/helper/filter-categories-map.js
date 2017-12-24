@@ -1,5 +1,5 @@
+const _ = require('lodash');
 const FilterAbstract = require('./filter-abstract');
-let _ = require('lodash');
 
 class FilterCategoriesMap extends FilterAbstract {
 

@@ -48,20 +48,20 @@
           "visibility": 4,
           "translated": 0,
           "root_category": "Root Catalog",
-          "categories": {"value": ["$source.category", "$source.subcategory"], "__filter": ["categories-map", "unshift:Каталог товарів"], "__prepare": ["join-categories-magento"]},
+          "categories": {"value": ["$fields.category", "$fields.subcategory"], "__filter": ["categories-map"], "__prepare": ["join-categories-magento"]},
           "type": "simple",
-          "sku": "$source.sku",
-          "manufacturer": "$source.manufacturer",
-          "manufacturer_code": "$source.manufacturer_code",
-          "price": {"value": ["$source.price", "$source.price_purchase"], "__filter": ["price"]},
-          "qty": {"value": ["$source.qty"], "__filter": ["shift", "number"]},
-          "is_in_stock": {"value": ["$source.is_in_stock"], "__filter": ["shift", "in-stock"]},
-          "name": {"value": ["$source.title"], "__filter": ["shift", "split:$source.manufacturer", "pop", "unshift:$source.manufacturer"], "__prepare": ["join"]},
-          "short_description": {"value": ["$source.short_description"], "__filter": ["shift", "replace:/(?:\\r\\n|\\r|\\n)/g, <br />", "replace:/\\\\/g, /"]},
-          "guarantee_period": "$source.guarantee_period",
-          "image": {"value": ["$source.image"], "__filter": ["shift", "get:hyperlink"]},
-          "small_image": {"value": ["$source.small_image"], "__filter": ["shift", "get:hyperlink"]},
-          "thumbnail": {"value": ["$source.thumbnail"], "__filter": ["shift", "get:hyperlink"]}
+          "sku": "$fields.sku",
+          "manufacturer": "$fields.manufacturer",
+          "manufacturer_code": "$fields.manufacturer_code",
+          "price": {"value": "$fields.price", "__filter": ["price"]},
+          "qty": {"value": "$fields.qty", "__filter": ["number"]},
+          "is_in_stock": {"value": ["$fields.is_in_stock"], "__filter": ["shift", "in-stock"]},
+          "name": {"value": "$fields.title", "__filter": ["split:$fields.manufacturer", "pop", "unshift:$fields.manufacturer"], "__prepare": ["join"]},
+          "short_description": {"value": ["$fields.short_description"], "__filter": ["shift", "replace:/(?:\\r\\n|\\r|\\n)/g, <br />", "replace:/\\\\/g, /"]},
+          "guarantee_period": "$fields.guarantee_period",
+          "image": {"value": ["$fields.image"], "__filter": ["shift", "get:hyperlink"]},
+          "small_image": {"value": ["$fields.small_image"], "__filter": ["shift", "get:hyperlink"]},
+          "thumbnail": {"value": ["$fields.thumbnail"], "__filter": ["shift", "get:hyperlink"]}
         }
       }
     }

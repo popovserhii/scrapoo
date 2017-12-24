@@ -65,7 +65,7 @@ class Preprocessor {
           preFields[name] = varPattern;
         }
       });
-      return _.assign({}, fields, preFields);
+      return _.assign({}, /*fields,*/ preFields);
     });
 
     //return isArray ? collection : collection.shift();

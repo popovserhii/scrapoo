@@ -1,38 +1,66 @@
 const _ = require('lodash');
-let FilterAbstract = require('./filter-abstract');
+const RuleChecker = require('scraper/query-builder/checker');
+const FilterAbstract = require('./filter-abstract');
 
 class FilterPrice extends FilterAbstract {
 
-  get defaultConfig() {
+  /*get defaultConfig() {
     return {
       "minRate": 0
     };
-  }
+  }*/
 
   filter(price) {
     if (_.isArray(price)) {
       _.forEach(price, (one, index) => {
         price = this._parsePrice(one);
-        if (price <= 0) {
+        /*if (price <= 0) {
           return;
-        }
+        }*/
 
-        if (_.has(this.config, `apply.${index}`)) {
+        /*if (_.has(this.config, `apply.${index}`)) {
           price = this._applyPattern(price, this.config.apply[index]);
+        }*/
+
+        if (this.config.rules) {
+          price = this._checkRules(price);
         }
 
         return false; // correct price is found, break next iterations
       });
     } else {
       price = this._parsePrice(price);
-      if (_.has(this.config, 'apply')) {
+      /*if (_.has(this.config, 'apply')) {
         price = this._applyPattern(price, _.isString(this.config.apply) ? this.config.apply : this.config.apply[0]); // get only first "apply" filter
+      }*/
+      if (this.config.rules) {
+        price = this._checkRules(price);
       }
     }
 
     if (!_.isUndefined(this.config.fixed)) {
       price = +price.toFixed(this.config.fixed);
     }
+
+    return price;
+  }
+
+  _checkRules(price) {
+    if (!this._ruleChecker) {
+      this._ruleChecker = new RuleChecker();
+    }
+
+    this._ruleChecker.setFields(this.variably.get('fields'));
+    _.each(this.config.rules, rule => {
+      if (this._ruleChecker.check(rule)) {
+        if (_.isString(rule.apply.to)) {
+          price = this.variably.process(rule.apply.to);
+        }
+        price = this._applyPattern(price, rule.apply.operand);
+
+        return false; // rule is matching, break next iteration
+      }
+    });
 
     return price;
   }
@@ -69,9 +97,9 @@ class FilterPrice extends FilterAbstract {
       correlated = number / correlation;
     }
 
-    if (correlated > this.config.minRate) {
+    //if (correlated > this.config.minRate) {
       number = correlated;
-    }
+    //}
 
     return number;
   }

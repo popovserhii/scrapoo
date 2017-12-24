@@ -1,5 +1,11 @@
 # Web Content Scraper
 
+## Вирізки по модульній організації коду
+https://stackoverflow.com/questions/39199776/express-js-modular-rest-framework
+https://javabeat.net/nodejs-modular-application/
+https://stackoverflow.com/questions/5778245/expressjs-how-to-structure-an-application
+
+
 ## Mixin
 Mixin implementation use [mixwith.js](https://github.com/justinfagnani/mixwith.js) library.
 

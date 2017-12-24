@@ -7,13 +7,7 @@ module.exports = {
         method: 'create',
       }
     },
-    /*source: {
-      factory: {
-        class: '/../factory/source-factory',
-        method: 'create'
-      }
-    },*/
-    sourceFactory: {
+    scraperFactory: {
       class: '/../factory/source-factory',
       arguments: ['@container'/*, '%package_reference'*/]
     },
