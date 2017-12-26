@@ -26,13 +26,14 @@ class Combiner extends Abstract {
       for (let r = 1; r < rows.length; r++) { // skip header
         let row = rows[r];
         let indexValue = row[xlsx.config.index];
+        let fields = this.getFields(row, xlsx.config);
 
-        if (undefined === prevIndex[indexValue]) { // is new value
-          await this.getOutput('newly').send(row);
+        if (_.isUndefined(prevIndex[indexValue]) && _.get(xlsx.config, 'newly.separate')) { // is new value
+          let newly = _.get(xlsx.config, 'newly.raw') ? row : fields;
+          await this.getOutput('newly').send(newly);
         } else { // is similar value
-          this._fields = this.getFields(row, xlsx.config);
-          this._fields = this.preprocessor.process(this._fields);
-          await this.getOutput().send(this._fields);
+          fields = this.preprocessor.process(fields);
+          await this.getOutput().send(fields);
 
           delete prevIndex[indexValue];
         }
@@ -44,9 +45,10 @@ class Combiner extends Abstract {
         let omitted = _.has(xlsx.config, 'omit.fields') ? prevXlsx.config.omit.fields : {};
         rows.push(row); // avoid duplicates on next iteration
 
-        this._fields = this.getFields(row, prevXlsx.config);
-        this._fields = this.preprocessor.process(_.merge(this._fields, omitted));
-        await this.getOutput().send(_.merge(this._fields, omitted));
+        let fields = this.getFields(row, prevXlsx.config);
+        fields = this.preprocessor.process(_.merge(fields, omitted));
+        //await this.getOutput().send(_.merge(this._fields, omitted));
+        await this.getOutput().send(fields);
       }
     }
   }

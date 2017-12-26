@@ -10,19 +10,32 @@
           "default": {
             "index": "Код",
             "fields": {
-              "sku": "Код",
-              "manufacturer_code": "Артикул",
-              "name": "Наименование укр.",
-              "price_purchase": "Цена, грн.",
-              "price": "РРЦ, грн.",
               "manufacturer": "ТМ",
+              "manufacturer_code": "Артикул",
+              "category": "Направление",
+              "subcategory": "Подгруппа",
+              "name": "Наименование укр.",
+              "title": "Товар",
+              "sku": "Код",
+              "short_description": "Описание",
+              "price": "РРЦ, грн.",
+              "price_purchase": "Цена, грн.",
+              "is_in_stock": "Склад Киев",
               "qty": "Остаток Киев, шт.",
-              "is_in_stock": "Склад Киев"
+              "image": "Фото",
+              "small_image": "Фото",
+              "thumbnail": "Фото",
+              "media_gallery": "Фото",
+              "guarantee_period": "Гарантия",
+              "content_url": "Полное описание"
             },
             "omit": {
               "fields": {"is_in_stock": "0", "qty": 0}
             },
-            "newly": {"separate": true}
+            "newly": {
+              "raw": false,
+              "separate": true
+            }
           }
         }
       ],

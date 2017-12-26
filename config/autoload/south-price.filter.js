@@ -6,23 +6,63 @@ module.exports = {
           "filter-price": {
             "fixed": 0,
             "rules": [
-              /*{ // Планшети
-                "condition": "AND",
+              { // монітори, ноутбуки
+                "condition": "OR",
                 "rules": [
                   {
-                    "field": "name",
+                    "field": "subcategory",
                     "type": "string",
                     "operator": "contains",
-                    "value": "Планшет"
+                    "value": "Мониторы"
+                  },
+                  {
+                    "field": "subcategory",
+                    "type": "string",
+                    "operator": "contains",
+                    "value": "Ноутбуки"
                   },
                 ],
                 "valid": true,
                 "apply": {
-                  "operand": "+5%",
+                  "operand": "+300",
                   "to": "$fields.price_purchase" // optional
                 }
-              },*/
-              {
+              },
+              { // холодильники, дрібна побутова техніка
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "price_purchase",
+                    "type": "double",
+                    "operator": "greater_or_equal",
+                    "value": "700.00"
+                  },
+                  {
+                    "condition": "OR",
+                    "rules": [
+
+                      {
+                        "field": "category",
+                        "type": "string",
+                        "operator": "equal",
+                        "value": "БЫТОВАЯ ТЕХНИКА МЕЛКАЯ"
+                      },
+                      {
+                        "field": "subcategory",
+                        "type": "string",
+                        "operator": "contains",
+                        "value": "Холодильники"
+                      },
+                    ],
+                  }
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "+4%",
+                  "to": "$fields.price_purchase" // optional
+                }
+              },
+              { // РРЦ не вказано
                 "condition": "OR",
                 "rules": [
                   {
@@ -44,20 +84,36 @@ module.exports = {
                   "to": "$fields.price_purchase" // optional
                 }
               },
-              {
+              { // RONDELL
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "manufacturer",
+                    "type": "string",
+                    "operator": "equal",
+                    "value": "RONDELL"
+                  },
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "-7",
+                  "to": "$fields.price_purchase" // optional
+                }
+              },
+              { // 800-5000; 400-800
                 "condition": "AND",
                 "rules": [
                   {
                     "field": "price_purchase",
                     "type": "double",
-                    "operator": "greater",
-                    "value": "800.00"
+                    "operator": "greater_or_equal",
+                    "value": "400.00"
                   },
                   {
-                    "field": "manufacturer",
-                    "type": "string",
-                    "operator": "not_equal",
-                    "value": "RONDELL"
+                    "field": "price_purchase",
+                    "type": "double",
+                    "operator": "less_or_equal",
+                    "value": "5000.00"
                   },
                 ],
                 "valid": true,
@@ -66,7 +122,45 @@ module.exports = {
                   "to": "$fields.price_purchase" // optional
                 }
               },
-              {
+              { // 5k-10K
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "price_purchase",
+                    "type": "double",
+                    "operator": "greater",
+                    "value": "5000.00"
+                  },
+                  {
+                    "field": "price_purchase",
+                    "type": "double",
+                    "operator": "less_or_equal",
+                    "value": "10000.00"
+                  },
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "+400",
+                  "to": "$fields.price_purchase" // optional
+                }
+              },
+              { // >10K
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "price_purchase",
+                    "type": "double",
+                    "operator": "greater",
+                    "value": "10000.00"
+                  },
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "+500",
+                  "to": "$fields.price_purchase" // optional
+                }
+              },
+              { // other products
                 "condition": "AND",
                 "rules": [
                   {

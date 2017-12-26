@@ -42,14 +42,14 @@ class Preprocessor {
   }
 
   process(fields) {
-    this.variably.set('fields', fields);
-
     //let isArray = _.isArray(fields);
     //let collection = _.castArray(fields);
 
     let collection = this.cast(fields);
 
     collection = _.map(collection, fields => {
+      this.variably.set('fields', fields);
+
       let preFields = {};
       _.each(this.config.fields, (varPattern, name) => {
         if (_.isPlainObject(varPattern)) { // complex variable with __filter & __prepare
