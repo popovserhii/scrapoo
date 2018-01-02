@@ -39,10 +39,14 @@ class File extends Abstract {
     //console.log(firstRow);
 
 
+    let flip = _.invert(this.config.source.fields);
     this._headerMap = {};
-    _.each(head, (val, i) => {
-      if (!_.isEmpty(val)) {
-        this._headerMap[val] = i;
+    _.each(head, (name/*, columnName*/) => {
+      if (!_.isEmpty(name)) {
+        let val = flip[name] || name;
+        //let headName = this.config.source.fields[name];
+
+        this._headerMap[name] = val;
       }
     });
 
@@ -52,7 +56,7 @@ class File extends Abstract {
       let searchable = [];
 
       //this._row = null;
-      this._row = await excel.read(i);
+      this.row = await excel.read(i);
       //console.log(this._row);
 
       let searchKeys = _.castArray(this.config.source.searchKeys);
@@ -63,6 +67,7 @@ class File extends Abstract {
         if (_.isPlainObject(searchKeys[k])) {
           let name = searchKeys[k].name;
           cell = this.configHandler.process(this._row[this._headerMap[name]], searchKeys[k]);
+          //cell = this.configHandler.process(this._row[name], searchKeys[k]);
         } else {
           let name = searchKeys[k];
           cell = this._row[this._headerMap[name]];

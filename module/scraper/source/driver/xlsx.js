@@ -115,7 +115,8 @@ class Xlsx extends Abstract {
 
   async _getWorkbookReader() {
     if (!this._wb) {
-      this._wb = XLSX.readFile(await this._getFilename(), {type:"binary"});
+      this._wb = XLSX.readFile(await this._getFilename(), {codepage: 65001});
+      //this._wb = XLSX.readFile(await this._getFilename(), {codepage: '20127'});
     }
 
     return this._wb;

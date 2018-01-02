@@ -7,7 +7,7 @@ const entities = new Entities();
 
 class Abstract {
   constructor(nightmare, configHandler, config) {
-    this._nightmare = nightmare;
+    this._browser = nightmare;
     this._config = config || {};
     this._configHandler = configHandler;
 
@@ -27,7 +27,7 @@ class Abstract {
   }
 
   get nightmare() {
-    return this._nightmare;
+    return this._browser;
   }
 
   get config() {
@@ -72,7 +72,7 @@ class Abstract {
 
     let response = await this.nightmare
       .goto(searchable)
-      .wait()
+      //.wait()
       .evaluate(function () {
         return document.body.innerHTML
       });
@@ -83,13 +83,20 @@ class Abstract {
       return null;
     }
 
-    return this.getFields(response);
+    return this.getFields(response.trim());
   }
 
   async getFields(response) {
     let $ = this.$ = cheerio.load(response);
 
 
+    /*const $ = cheerio.load('<ul id="fruits">\n' +
+      '  <li class="apple">Apple</li>\n' +
+      '  <li class="orange">Orange</li>\n' +
+      '  <li class="pear">Pear</li>\n' +
+      '</ul>');*/
+
+    let i = 0;
     let fields = $(this.config.group.selector).map((i, element) => {
       let group = $(element);
       let fields = {};

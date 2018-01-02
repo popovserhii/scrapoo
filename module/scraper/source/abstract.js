@@ -10,12 +10,12 @@ const ConfigHandler = require('scraper/core/config-handler');
 const Variably = require('scraper/variably');
 
 class Abstract {
-  constructor(nightmare, config) {
+  constructor(browser, config) {
 
-    if (!nightmare) {
+    if (!browser) {
 
     }
-    this._nightmare = nightmare;
+    this._browser = browser;
     //this._config = config || {};
 
     this._config = _.merge({"source": {"driver": {"file": "scraper/source/driver/xlsx"}}}, config);
@@ -57,8 +57,8 @@ class Abstract {
     }
   }
 
-  get nightmare() {
-    return this._nightmare;
+  get browser() {
+    return this._browser;
   }
 
   get config() {
@@ -75,10 +75,24 @@ class Abstract {
 
   /**
    * Get current row
-   * @returns json
    */
   get row() {
     return this._row;
+
+  }
+
+  set row(row) {
+    _.each(row, (val, headName) => {
+      let name = this.headMap[headName];
+      //let name = this.config.source.fields
+      this._row[name] = val;
+    });
+
+    //let headName = this.config.source.fields[name];
+    //let columnIndex = this.headMap[headName];
+    //return this.row[columnIndex];
+
+    return this;
   }
 
   getData(name) {
@@ -100,7 +114,7 @@ class Abstract {
   getCrawler(config) {
     if (!this._crawlers[config.name]) {
       let Adapter = require('scraper/adapter/' + config.name);
-      this._crawlers[config.name] = new Adapter(this.nightmare, this.configHandler, config); // retrieve hotline etc. adapter
+      this._crawlers[config.name] = new Adapter(this.browser, this.configHandler, config); // retrieve hotline etc. adapter
     }
     return this._crawlers[config.name];
   }
@@ -224,8 +238,8 @@ class Abstract {
 
 
             // here must be iteration though config.crawler
-            let adapter = this._crawler = this.getCrawler(crawlerConfig);
-            fields = await adapter.scan(searchable.slice()); // why slice? see here http://orizens.com/wp/topics/javascript-arrays-passing-by-reference-or-by-value/
+            let crawler = this._crawler = this.getCrawler(crawlerConfig);
+            fields = await crawler.scan(searchable.slice()); // why slice? see here http://orizens.com/wp/topics/javascript-arrays-passing-by-reference-or-by-value/
 
             //console.log('--------++++++++++---------');
 
@@ -237,8 +251,11 @@ class Abstract {
                 await this.prepareFields();
               }
 
-              fields = this.preprocessor.process(fields);
-              await this.getOutput().send(fields);
+              for (let f = 0; f < fields.length; f++) {
+                let handled = this.preprocessor.process(_.merge({}, this.row, fields[f]));
+                //fields = this.preprocessor.process(fields);
+                await this.getOutput().send(handled);
+              }
             } else {
               // fields not found with any crawler
               // write to file about problem product
@@ -254,7 +271,7 @@ class Abstract {
         }
       } else if (_.isUndefined(this.config.source.searchKeys)) {
         // run preprocessor skip crawling
-        let fields = this.preprocessor.process({});
+        let fields = this.preprocessor.process(this.row);
         await this.getOutput().send(fields);
       }
     } catch (e) {
@@ -273,9 +290,9 @@ class Abstract {
     let nextExist = false;
 
     if (options && options.nextPage) {
-      nextExist = await this.nightmare.visible(options.nextPage);
+      nextExist = await this.browser.visible(options.nextPage);
       if (nextExist) {
-        this._nextUrl = await this.nightmare.evaluate(function(nextPageSelector) {
+        this._nextUrl = await this.browser.evaluate(function(nextPageSelector) {
           // return next page url
           return window.location.protocol + "//" + window.location.host + '/' + jQuery(nextPageSelector).attr('href');
         }, options.nextPage);

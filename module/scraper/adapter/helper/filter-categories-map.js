@@ -41,11 +41,11 @@ class FilterCategoriesMap extends FilterAbstract {
   _buildTree(category, parent = []) {
     if (!_.isString(category)) {
       let goOn = true;
-      let name = this.source.getField('name');
-      _.forEach(category, (cat, keywords) => {
+      let name = this.variably.get('fields')['name'];
+      _.each(category, (cat, keywords) => {
         if (!goOn) return false;
-        _.forEach(keywords.split(','), (keyword) => {
-          let index = name.toLowerCase().indexOf(keyword.trim());
+        _.each(keywords.split(','), (keyword) => {
+          let index = name.toLowerCase().indexOf(keyword.toLowerCase().trim());
           if (-1 !== index) {
             category = category[keywords];
 

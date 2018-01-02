@@ -17,7 +17,6 @@
               "name": "Наименование укр.",
               "title": "Товар",
               "sku": "Код",
-              "short_description": "Описание",
               "price": "РРЦ, грн.",
               "price_purchase": "Цена, грн.",
               "is_in_stock": "Склад Киев",
@@ -49,7 +48,8 @@
         "newly": {
           "path": "data/shop-it/inventory-combined-newly.csv",
           "options": {
-            "dateable": false
+            "dateable": false,
+            "bom": true
           }
         }
       },

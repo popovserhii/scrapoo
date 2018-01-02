@@ -76,17 +76,17 @@ class Scraper /*extends mix(Object).with(ConfigManageMixin)*/ {
   }*/
 
   async run(taskName = null) {
-    let nightmare = Nightmare({
+    /*let nightmare = Nightmare({
       show: true,
       webPreferences: {
         webSecurity: false
       }
-    });
+    });*/
 
     //let size = _.size(this.config);
     //for (let i = 0; i < size; i++) {
 
-    nightmare.useragent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
+    //nightmare.useragent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     for (let name in this.config) {
 
       //console.log(sourceName);
@@ -122,6 +122,10 @@ class Scraper /*extends mix(Object).with(ConfigManageMixin)*/ {
         await source.start();
 
         this._sources[name] = source;
+
+        source.browser.then(() => {
+          return source.browser.end();
+        });
       } catch (e) {
         if (_.isString(e)) {
           console.error(e);
@@ -130,10 +134,6 @@ class Scraper /*extends mix(Object).with(ConfigManageMixin)*/ {
         }
       }
     }
-
-    nightmare.then(() => {
-      return nightmare.end();
-    });
   }
 }
 

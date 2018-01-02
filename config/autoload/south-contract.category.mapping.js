@@ -1,9 +1,8 @@
-{
+module.exports = {
   "scraper": {
     "south-contract-category": {
       "pool": "shop-it",
       "source": {
-        "pool": "shop-it",
         "type": "file",
         "path": "data/shop-it/south-contract/pprice_list.xls",
         "fields": {
@@ -55,15 +54,15 @@
           "manufacturer_code": "$fields.manufacturer_code",
           "price": {"value": "$fields.price", "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
-          "is_in_stock": {"value": ["$fields.is_in_stock"], "__filter": ["shift", "in-stock"]},
+          "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]},
           "name": {"value": "$fields.title", "__filter": ["split:$fields.manufacturer", "pop", "unshift:$fields.manufacturer"], "__prepare": ["join"]},
-          "short_description": {"value": ["$fields.short_description"], "__filter": ["shift", "replace:/(?:\\r\\n|\\r|\\n)/g, <br />", "replace:/\\\\/g, /"]},
+          "short_description": {"value": "$fields.short_description", "__filter": ["replace:/(?:\\r\\n|\\r|\\n)/g, <br />", "replace:/\\\\/g, /"]},
           "guarantee_period": "$fields.guarantee_period",
-          "image": {"value": ["$fields.image"], "__filter": ["shift", "get:hyperlink"]},
-          "small_image": {"value": ["$fields.small_image"], "__filter": ["shift", "get:hyperlink"]},
-          "thumbnail": {"value": ["$fields.thumbnail"], "__filter": ["shift", "get:hyperlink"]}
+          //"image": {"value": "$fields.image", "__filter": ["get:hyperlink"]},
+          //"small_image": {"value": "$fields.small_image", "__filter": ["get:hyperlink"]},
+          //"thumbnail": {"value": "$fields.thumbnail", "__filter": ["get:hyperlink"]}
         }
       }
     }
   }
-}
+};

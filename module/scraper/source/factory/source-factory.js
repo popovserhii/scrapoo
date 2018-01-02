@@ -8,11 +8,11 @@ class SourceFactory {
 
   create(type, task) {
     let configer = this._container.get('configer');
-    //let nightmare = this._container.get('nightmare');
+    let browser = this._container.get('browser');
     let config = configer.manageConfig('scraper', task);
 
     let Source = require('scraper/source/' + type);
-    let source = new Source(null, config);
+    let source = new Source(browser, config);
 
     return source;
   }
