@@ -100,14 +100,14 @@ module.exports = {
                   "to": "$fields.price_purchase" // optional
                 }
               },
-              { // 800-5000; 400-800
+              { // 800-5000; 500-800
                 "condition": "AND",
                 "rules": [
                   {
                     "field": "price_purchase",
                     "type": "double",
                     "operator": "greater_or_equal",
-                    "value": "400.00"
+                    "value": "500.00"
                   },
                   {
                     "field": "price_purchase",

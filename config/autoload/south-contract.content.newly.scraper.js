@@ -67,6 +67,7 @@ module.exports = {
           "categories": {"value": ["$fields.category", "$fields.subcategory"], "__filter": ["categories-map"/*, "unshift:Каталог товарів"*/], "__prepare": ["join-categories-magento"]},
           "type": "simple",
           "sku": "$fields.sku",
+          "guarantee": {"value": "$fields.guarantee", "__filter": ["guarantee"]},
           "price": {"value": "$fields.price", "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
           "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]},

@@ -25,7 +25,7 @@
               "small_image": "Фото",
               "thumbnail": "Фото",
               "media_gallery": "Фото",
-              "guarantee_period": "Гарантия",
+              "guarantee": "Гарантия",
               "content_url": "Полное описание"
             },
             "omit": {
