@@ -117,16 +117,18 @@ class Abstract {
     for (let i in this._config.file) {
       let paths = _.castArray(this._config.file[i].path);
       let fileNames = await this.getFileNames(paths);
-      for (let f = 0; f < 1; f++) { // iterate only over first file on this step
-        this._current = {
+
+      //for (let f = 0; f < 1; f++) {
+        this._current = { // iterate only over first file on this step
           index: this._xlsx.length,
           config: this._config.file[i],
           fileNames: fileNames,
-          xlsx: this.getXlsx(fileNames[f], this._config.file[i])
+          //xlsx: this.getXlsx(fileNames[f], this._config.file[f])
+          xlsx: this.getXlsx(fileNames[0], this._config.file[0])
         };
 
         await this.prepare(sheetName);
-      }
+      //}
 
       // @todo Remove this. It is quick realization for price-list
       if (_.isFunction(this.getOutput()._save)) {

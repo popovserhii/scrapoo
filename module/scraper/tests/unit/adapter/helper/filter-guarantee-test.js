@@ -1,6 +1,6 @@
 let chai = require('chai');
 let expect = chai.expect;
-let Helper = require('../../../../adapter/helper/filter-guaranty');
+let Helper = require('../../../../adapter/helper/filter-guarantee');
 
 describe('Helper: Guarantee Filter', () => {
 
@@ -101,15 +101,17 @@ describe('Helper: Guarantee Filter', () => {
       "convertTo": "month",
       "map": {
         "year": [
-          "(\\d+) р",
+          "((\\d+)[\.,]?((\\d?))) р",
         ],
       }
     });
 
     let oneYear = helper.filter('1 рік');
+    let oneAndHalfYear = helper.filter('1.5 років');
     let fourYears = helper.filter('4 р.');
 
     expect(oneYear).to.equal(12); // month
+    expect(oneAndHalfYear).to.equal(18); // month
     expect(fourYears).to.equal(48); // month
   });
 

@@ -1,4 +1,4 @@
-{
+module.exports = {
   "converter": {
     "south-combiner": {
       "pool": "shop-it",
@@ -57,6 +57,7 @@
         "fields": {
           "sku": "$fields.sku",
           "manufacturer_code": "$fields.manufacturer_code",
+          "guarantee": {"value": "$fields.guarantee", "__filter": ["guarantee"]},
           "price_purchase": {"value": "$fields.price_purchase"},
           "price": {"value": "$fields.price", "__filter": ["price"]},
           "qty": {"value": "$fields.qty", "__filter": ["number"]},
@@ -65,4 +66,4 @@
       }
     }
   }
-}
+};
