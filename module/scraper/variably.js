@@ -3,6 +3,7 @@ const _ = require('lodash');
 class Variably {
   constructor() {
     this._variables = {};
+    this._regexp = /{{([a-zA-Z0-9_\-.]*?)}}/gi;
   }
 
   /**
@@ -29,6 +30,12 @@ class Variably {
     return this._variables[name];
   }
 
+  unset(name) {
+    delete this._variables[name];
+
+    return this;
+  }
+
   /**
    * Is parameter stringable variable
    *
@@ -43,6 +50,11 @@ class Variably {
     if (this.is(variable)) {
       return this._processValue(variable.substring(1));
     }
+
+    variable = variable.replace(this._regexp, (match, varPattern, offset, inputString) => {
+      return this._processValue(varPattern);
+    });
+
     return variable;
   }
 

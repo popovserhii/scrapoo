@@ -15,7 +15,7 @@ class Site extends Abstract{
   }
 
   async start() {
-    this.location = URL.parse(config.source.path);
+    this.location = URL.parse(this.config.source.path);
     this.baseUrlHelper = new PrepareBaseUrl().setConfig('location', this.location);
     let siteName = this.config.source.path;
 

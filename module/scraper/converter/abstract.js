@@ -16,7 +16,7 @@ class Abstract {
     this._config = config;
     this._xlsx = {};
     this._row = {};
-    this._rows = [];
+    this._rows = {"default": []};
     this._fields = {};
     //this._persisted = {};
     this._output = {};
@@ -112,30 +112,39 @@ class Abstract {
   async run(sheetName = null) {
     this.variably.set(_.lowerFirst(this.constructor.name), this);
 
-    this._rows = [];
+    //this._rows = [];
 
     for (let i in this._config.file) {
       let paths = _.castArray(this._config.file[i].path);
       let fileNames = await this.getFileNames(paths);
-
-      //for (let f = 0; f < 1; f++) {
-        this._current = { // iterate only over first file on this step
+      for (let f = 0; f < 1; f++) { // iterate only over first file on this step
+        this._current = {
           index: this._xlsx.length,
           config: this._config.file[i],
           fileNames: fileNames,
-          //xlsx: this.getXlsx(fileNames[f], this._config.file[f])
-          xlsx: this.getXlsx(fileNames[0], this._config.file[0])
+          xlsx: this.getXlsx(fileNames[f], this._config.file[i])
         };
 
         await this.prepare(sheetName);
-      //}
-
-      // @todo Remove this. It is quick realization for price-list
-      if (_.isFunction(this.getOutput()._save)) {
-        await this.getOutput()._save();
       }
+
     }
 
+    // It is most efficient to aggregate data in memory and save all by once.
+    // In one experiment no benefits were noticed when saving each row separately
+    for (let type in this._rows) {
+      await this.getOutput(type).send(this._rows[type]);
+    }
+
+
+    // @todo Remove this. It is quick realization for price-list
+    if (_.isFunction(this.getOutput()._persist)) {
+      await this.getOutput()._persist(this._current.xlsx.sheetName);
+    }
+    // @todo Remove this. It is quick realization for price-list
+    if (_.isFunction(this.getOutput()._save)) {
+      await this.getOutput()._save();
+    }
 
   }
 

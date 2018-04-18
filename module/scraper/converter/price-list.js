@@ -5,15 +5,10 @@ class PriceList extends Abstract{
 
   async _prepareSheet(sheetName) {
     await this._handleSheet(sheetName);
-
-    // @todo Remove this. It is quick realization for price-list
-    if (_.isFunction(this.getOutput()._persist)) {
-      await this.getOutput()._persist(this._current.xlsx.sheetName);
-    }
   }
 
   async _handleSheet(sheetName) {
-    this._rows = [];
+    this._rows.default = [];
 
     let xlsx = this._current.xlsx;
 
@@ -65,7 +60,8 @@ class PriceList extends Abstract{
           row[categoryField] = this.configHandler.process(categoryNames, xlsx.config.categorize);
         }
       }
-      this.getOutput().send(row);
+      //this.getOutput().send(row);
+      this._rows.default.push(row)
     }
   }
 }

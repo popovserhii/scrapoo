@@ -23,9 +23,6 @@ class Search extends Abstract {
 
     //console.log('module/scraper/adapter/search.js', searchable);
     for (let key of searchable) {
-      //console.log('module/scraper/adapter/search.js:key', key);
-      //console.log(typeof key);
-
       if (!_.isString(key) && !_.isNumber(key)) {
         key = this.configHandler.process(key.name, key);
       }

@@ -140,8 +140,8 @@ describe('Combiner', () => {
             "path": ['path/to/file-one.xlsx', 'path/to/file-one-old.xlsx'],
             "default": {
               "index": "Код",
-              "fields": {"code": "Код", "is_in_stock": "Склад", "name": {"name": "Назва"}},
-              "omit": {"fields": {"is_in_stock": "out of stock"}},
+              "fields": {"code": "Код", "is_in_stock": "Склад", "name": {"name": "Назва"}, "price": "Ціна"},
+              "omit": {"fields": {"is_in_stock": "0"}},
               "newly": {"separate": true}
             },
           },
@@ -149,8 +149,8 @@ describe('Combiner', () => {
             "path": ['path/to/file-two.xlsx'],
             "default": {
               "index": "Артикуль",
-              "fields": {"code": "Артикуль", "is_in_stock": "Наявність", "name": {"name": "Назва"}},
-              "omit": {"fields": {"is_in_stock": "out of stock"}},
+              "fields": {"code": "Артикуль", "is_in_stock": "Наявність", "name": {"name": "Назва"}, "price": "Ціна"},
+              "omit": {"fields": {"is_in_stock": "0"}},
               "newly": {"separate": true}
             },
           },
@@ -160,38 +160,81 @@ describe('Combiner', () => {
             "code": "$fields.code",
             "is_in_stock": "$fields.is_in_stock",
             "name": "$fields.name",
+            "price": "$fields.price",
           }
-        }
+        },
+        "rules": [
+          {
+            "condition": "OR",
+            "rules": [
+              {
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "new.is_in_stock",
+                    "type": "string",
+                    "operator": "equal",
+                    "value": "1"
+                  },
+                  {
+                    "field": "old.is_in_stock",
+                    "type": "string",
+                    "operator": "not_equal",
+                    "value": "1"
+                  },
+                ],
+              },
+              {
+                "condition": "AND",
+                "rules": [
+                  {
+                    "field": "new.is_in_stock",
+                    "type": "string",
+                    "operator": "equal",
+                    "value": "1"
+                  },
+                  {
+                    "field": "new.price",
+                    "type": "double",
+                    "operator": "less",
+                    "value": "$old.price"
+                  }
+                ],
+              }
+            ],
+            "valid": true,
+          }
+        ]
       },
       {
         files: { // file rows mock
           //[ // "path" config has several files (two files with identical structure)
           "path/to/file-one.xlsx": [ // first file
-            {"Код": "Код", "Назва": "Назва", "Склад": "Склад"},
-            {"Код": "2974651", "Назва": "ноутбук i5", "Склад": "in stock"},
-            {"Код": "2852963", "Назва": "ноутбук i7", "Склад": "out of stock"},
+            {"Код": "Код", "Назва": "Назва", "Склад": "Склад", "Ціна": "Ціна"},
+            {"Код": "2974651", "Назва": "ноутбук i5", "Склад": "1", "Ціна": 1000},
+            {"Код": "2852963", "Назва": "ноутбук i7", "Склад": "0", "Ціна": 1500},
           ],
           "path/to/file-one-old.xlsx": [ // first old file
             {"Код": "Код", "Назва": "Назва", "Склад": "Склад"},
-            {"Код": "2974651", "Назва": "ноутбук i5", "Склад": "out of stock"},
-            {"Код": "2852963", "Назва": "ноутбук i7", "Склад": "out of stock"},
-            {"Код": "2879423", "Назва": "ноутбук i3", "Склад": "in stock"}
+            {"Код": "2974651", "Назва": "ноутбук i5", "Склад": "0", "Ціна": 1000},
+            {"Код": "2852963", "Назва": "ноутбук i7", "Склад": "1", "Ціна": 1500},
+            {"Код": "2879423", "Назва": "ноутбук i3", "Склад": "1", "Ціна": 2000}
           ],
           "path/to/file-two.xlsx": [ // second file
             {"Артикуль": "Артикуль", "Назва": "Назва", "Наявність": "Наявність"},
-            {"Артикуль": "2974651", "Назва": "ноутбук i5", "Наявність": "in stock"},
-            {"Артикуль": "2852963", "Назва": "ноутбук i7", "Наявність": "out of stock"},
-            {"Артикуль": "2879425", "Назва": "ноутбук AMD", "Наявність": "in stock"}
+            {"Артикуль": "2974651", "Назва": "ноутбук i5", "Наявність": "0", "Ціна": 900},
+            {"Артикуль": "2852963", "Назва": "ноутбук i7", "Наявність": "0", "Ціна": 1500},
+            {"Артикуль": "2879425", "Назва": "ноутбук AMD", "Наявність": "1", "Ціна": 3000}
           ]
           //],
           //[] // second file with different structure
         }
       },
       [ // expected combined rows
-        {"code": "2974651", "is_in_stock": "out of stock", "name": "ноутбук i5"},
-        {"code": "2852963", "is_in_stock": "out of stock", "name": "ноутбук i7"},
-        {"code": "2879423", "is_in_stock": "out of stock", "name": "ноутбук i3"},
-        {"code": "2879425", "is_in_stock": "in stock", "name": "ноутбук AMD"}
+        {"code": "2974651", "is_in_stock": "1", "name": "ноутбук i5", "price": 1000},
+        {"code": "2852963", "is_in_stock": "0", "name": "ноутбук i7", "price": 1500},
+        {"code": "2879423", "is_in_stock": "0", "name": "ноутбук i3", "price": 2000},
+        {"code": "2879425", "is_in_stock": "1", "name": "ноутбук AMD", "price": 3000}
       ]
     ],
 

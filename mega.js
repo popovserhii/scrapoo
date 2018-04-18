@@ -181,5 +181,7 @@ class Mega {
   }
 }
 
-let mega = new Mega();
-mega.run();
+(async function() {
+  let mega = new Mega();
+  await mega.run();
+})();

@@ -14,14 +14,6 @@ class FilterPrice extends FilterAbstract {
     if (_.isArray(price)) {
       _.forEach(price, (one, index) => {
         price = this._parsePrice(one);
-        /*if (price <= 0) {
-          return;
-        }*/
-
-        /*if (_.has(this.config, `apply.${index}`)) {
-          price = this._applyPattern(price, this.config.apply[index]);
-        }*/
-
         if (this.config.rules) {
           price = this._checkRules(price);
         }
@@ -30,9 +22,6 @@ class FilterPrice extends FilterAbstract {
       });
     } else {
       price = this._parsePrice(price);
-      /*if (_.has(this.config, 'apply')) {
-        price = this._applyPattern(price, _.isString(this.config.apply) ? this.config.apply : this.config.apply[0]); // get only first "apply" filter
-      }*/
       if (this.config.rules) {
         price = this._checkRules(price);
       }

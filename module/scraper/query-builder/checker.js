@@ -3,7 +3,7 @@ const _ = require('lodash');
 class Checker {
 
   setFields(fields) {
-    this._fileds = fields;
+    this._fields = fields;
 
     return this;
   }
@@ -72,10 +72,10 @@ class Checker {
     if (!_.isFunction(this[operator])) {
       throw new Error(`Unknown "${rule['operator']}" operator for field "${rule['name']}"`);
     }
-    let value = this._fileds[rule.field];
+    let value = _.get(this._fields, rule.field);
     let ruleValue = rule.value;
     if (_.startsWith(ruleValue, '$', 0)) {
-      ruleValue = this._fileds[ruleValue.substring(1)];
+      ruleValue = _.get(this._fields, ruleValue.substring(1));
     }
     if (this._isCastOperator(rule.operator) && _.includes(["integer", "double"], rule.type)) { // casting numeric for correct comparison
       value = _.toNumber(value);

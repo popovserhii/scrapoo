@@ -6,6 +6,28 @@ module.exports = {
           "filter-price": {
             "fixed": 0,
             "rules": [
+              { // 6373327
+                "condition": "OR",
+                "rules": [
+                  {
+                    "field": "sku",
+                    "type": "string",
+                    "operator": "equal",
+                    "value": "6373327"
+                  },
+                  /*{
+                    "field": "subcategory",
+                    "type": "string",
+                    "operator": "contains",
+                    "value": "Ноутбуки"
+                  },*/
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "+0",
+                  "to": "$fields.price" // optional
+                }
+              },
               { // монітори, ноутбуки
                 "condition": "OR",
                 "rules": [
@@ -62,42 +84,36 @@ module.exports = {
                   "to": "$fields.price_purchase" // optional
                 }
               },
-              { // РРЦ не вказано
-                "condition": "OR",
+              { // мед.техніка
+                "condition": "AND",
                 "rules": [
                   {
-                    "field": "price",
-                    "type": "double",
-                    "operator": "less_or_equal",
-                    "value": "0"
-                  },
-                  {
-                    "field": "price",
-                    "type": "double",
-                    "operator": "is_empty",
-                    //"value": "0"
-                  },
+                    "field": "category",
+                    "type": "string",
+                    "operator": "equal",
+                    "value": "МЕДТЕХНИКА"
+                  }
                 ],
                 "valid": true,
                 "apply": {
-                  "operand": "+5%",
+                  "operand": "+8%",
                   "to": "$fields.price_purchase" // optional
                 }
               },
-              { // RONDELL
+              { // RONDELL && TRUST
                 "condition": "AND",
                 "rules": [
                   {
                     "field": "manufacturer",
                     "type": "string",
-                    "operator": "equal",
-                    "value": "RONDELL"
+                    "operator": "in",
+                    "value": ["RONDELL", "TRUST"]
                   },
                 ],
                 "valid": true,
                 "apply": {
                   "operand": "-7",
-                  "to": "$fields.price_purchase" // optional
+                  "to": "$fields.price" // optional
                 }
               },
               { // 800-5000; 500-800
@@ -157,6 +173,28 @@ module.exports = {
                 "valid": true,
                 "apply": {
                   "operand": "+500",
+                  "to": "$fields.price_purchase" // optional
+                }
+              },
+              { // РРЦ не вказано
+                "condition": "OR",
+                "rules": [
+                  {
+                    "field": "price",
+                    "type": "double",
+                    "operator": "less_or_equal",
+                    "value": "0"
+                  },
+                  {
+                    "field": "price",
+                    "type": "double",
+                    "operator": "is_empty",
+                    //"value": "0"
+                  },
+                ],
+                "valid": true,
+                "apply": {
+                  "operand": "+5%",
                   "to": "$fields.price_purchase" // optional
                 }
               },

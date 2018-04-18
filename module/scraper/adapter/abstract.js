@@ -89,13 +89,6 @@ class Abstract {
   async getFields(response) {
     let $ = this.$ = cheerio.load(response);
 
-
-    /*const $ = cheerio.load('<ul id="fruits">\n' +
-      '  <li class="apple">Apple</li>\n' +
-      '  <li class="orange">Orange</li>\n' +
-      '  <li class="pear">Pear</li>\n' +
-      '</ul>');*/
-
     let i = 0;
     let fields = $(this.config.group.selector).map((i, element) => {
       let group = $(element);
