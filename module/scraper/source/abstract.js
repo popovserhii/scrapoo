@@ -11,10 +11,6 @@ const Variably = require('scraper/variably');
 
 class Abstract {
   constructor(browser, config) {
-
-    if (!browser) {
-
-    }
     this._browser = browser;
     //this._config = config || {};
 
@@ -57,12 +53,20 @@ class Abstract {
     }
   }
 
-  get browser() {
-    return this._browser;
+  setConfig() {
+    return this._config;
+  }
+
+  getConfig() {
+    return this._config;
   }
 
   get config() {
     return this._config;
+  }
+
+  get browser() {
+    return this._browser;
   }
 
   /**
@@ -116,7 +120,8 @@ class Abstract {
       let Adapter = require('scraper/adapter/' + config.name);
       this._crawlers[config.name] = new Adapter(this.browser, this.configHandler, config); // retrieve hotline etc. adapter
     }
-    return this._crawlers[config.name];
+
+    return this._crawlers[config.name].setConfig(config);
   }
 
   set output(output) {
@@ -184,7 +189,10 @@ class Abstract {
       this._variably = new Variably();
       this._variably.set('source', this);
       this._variably.set('config', this.config);
-      this._variably.set('crawler', this.crawler);
+
+      // Поки вимкнув передачу 'crawler', так як не зрозуміло навіщо передавати зайву залежність.
+      // Це тільки додає не зрозумілості системі.
+      //this._variably.set('crawler', this.crawler);
     }
 
     return this._variably;
@@ -223,52 +231,33 @@ class Abstract {
   async process(searchable) {
     try {
       //console.log(this.config.crawler);
-      if (_.size(this.config.crawler) && _.size(searchable)) {
+      if (_.size(this.config.crawler)) {
         // iterate through crawlers if they are placed in config
-        let fields = null;
-        for (let key in this.config.crawler) {
-          if (fields) {
-            // don't run other crawler if first has found needed fields
-            break;
+        let fields = await this._scrap(searchable, this.config.crawler);
+
+        if (fields && _.size(fields)) {
+          // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
+          // а потрібно додати змінні в _row для категорії і підкатегорії.
+          // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
+
+          //if ('Site' === this.constructor.name) {
+          //  await this.prepareFields();
+          //}
+
+          for (let f = 0; f < fields.length; f++) {
+            let handled = this.preprocessor.process(_.merge({}, this.row, fields[f]));
+            //fields = this.preprocessor.process(fields);
+            await this.getOutput().send(handled);
           }
-            let crawlerConfig = this.config.crawler[key];
-
-            //console.log('Run crawler: ' + crawlerConfig.name);
-            console.log('Search: ' + _.castArray(searchable).join(', '));
-
-
-            // here must be iteration though config.crawler
-            let crawler = this._crawler = this.getCrawler(crawlerConfig);
-            fields = await crawler.scan(searchable.slice()); // why slice? see here http://orizens.com/wp/topics/javascript-arrays-passing-by-reference-or-by-value/
-
-            //console.log('--------++++++++++---------');
-
-            if (fields && _.size(fields)) {
-              // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
-              // а потрібно додати змінні в _row для категорії і підкатегорії.
-              // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
-              if ('Site' === this.constructor.name) {
-                await this.prepareFields();
-              }
-
-              for (let f = 0; f < fields.length; f++) {
-                let handled = this.preprocessor.process(_.merge({}, this.row, fields[f]));
-                //fields = this.preprocessor.process(fields);
-                await this.getOutput().send(handled);
-              }
-            } else {
-              // fields not found with any crawler
-              // write to file about problem product
-              this.getOutput('problem').send({
-                value: searchable.join(','),
-                message: 'Not found'
-              });
-            }
-            if (await this.nextPageExist()) {
-              await this.process(this._nextUrl);
-            }
-            //this.output.file.end(); // here is problem "write after end Error: write after end"
+        } else {
+          // fields not found with any crawler
+          // write to file about problem product
+          this.getOutput('problem').send({
+            value: searchable.join(','),
+            message: 'Not found'
+          });
         }
+
       } else if (_.isUndefined(this.config.source.searchKeys)) {
         // run preprocessor skip crawling
         let fields = this.preprocessor.process(this.row);
@@ -285,22 +274,47 @@ class Abstract {
     }
   }
 
-  async nextPageExist() {
-    let options = this.config.options;
-    let nextExist = false;
-
-    if (options && options.nextPage) {
-      nextExist = await this.browser.visible(options.nextPage);
-      if (nextExist) {
-        this._nextUrl = await this.browser.evaluate(function(nextPageSelector) {
-          // return next page url
-          return window.location.protocol + "//" + window.location.host + '/' + jQuery(nextPageSelector).attr('href');
-        }, options.nextPage);
-      }
+  async _scrap(searchable, crawlersConfig) {
+    if (_.isUndefined(searchable) || searchable.length < 1) {
+      return false;
     }
 
-    return nextExist;
+    crawlersConfig = _.castArray(crawlersConfig);
+
+    // iterate through crawlers if they are placed in config
+    let fields = null;
+    for (let key in crawlersConfig) {
+      if (fields) {
+        // don't run other crawler if first has found needed fields
+        break;
+      }
+      let crawlerConfig = crawlersConfig[key];
+
+      //console.log('Run crawler: ' + crawlerConfig.name);
+      console.log('Search: ' + _.castArray(searchable).join(', '));
+
+
+      // here must be iteration though config.crawler
+      let crawler = /*this._crawler =*/ this.getCrawler(crawlerConfig);
+      // why slice? see here http://orizens.com/wp/topics/javascript-arrays-passing-by-reference-or-by-value/
+      fields = await crawler.scan(searchable.slice());
+
+      //console.log('--------++++++++++---------');
+
+
+      /*if (await this.nextPageExist()) {
+        await this.process(this._nextUrl);
+      }*/
+      //this.output.file.end(); // here is problem "write after end Error: write after end"
+    }
+
+    return fields;
   }
+
+  /*_canScrap() {
+    return _.size(this.config.crawler);
+  }*/
+
 }
 
 module.exports = Abstract;

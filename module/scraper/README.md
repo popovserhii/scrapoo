@@ -30,7 +30,6 @@ class Scraper extends mix(Object).with(YourNewMixin) {
 In example above show extending from standard JS `Object` class, because `Scraper` class does not have any super class.
 If you have `super` class simply replace `Object` with your class. 
 
-
 ## Configuration
 Now config files is include with `require()` method.
 More detailed can read [here](https://stackoverflow.com/a/26446604/1335142) or another [acceptable solution](https://goenning.net/2016/05/13/how-i-manage-application-configuration-with-nodejs/)
@@ -105,6 +104,23 @@ Configuration is merged in the order shown above, **specific by helper** wins.
     -- array: "path": ["path/to/file.ext", "path/to/file2.ext"]
     -- array combination: "path": [{"name": "path/to/file.ext"}, "path/to/file2.ext"]
     -- glob pattern: in all above config can be used glob pattern 
+
+
+## Dependency Injection
+Dependencies in the project use [Node Dependency Injection](https://github.com/zazoomauro/node-dependency-injection).
+It is powerful dependency container which allow customize your project dependencies in convenient way.
+
+Scrapoo uses the principle of maximum configuration, that is why you should describe your dependencies in config files.
+
+All config files should be saved under *config* directory. 
+For dependencies agreed file name is `services.js`. If you create new module you must to register `services.js` in global
+`config/modules.js`. Simply add path to your module file as 
+```js
+{resource: '/../module/scraper/new-module/config/services.js'}
+```
+
+Please read [official documentation](https://github.com/zazoomauro/node-dependency-injection/wiki) for know more.
+
 
 ## Helpers
 ### Price Helper

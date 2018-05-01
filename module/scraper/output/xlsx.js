@@ -44,8 +44,6 @@ class Xlsx extends Abstract {
    * @private
    */
   async _persist(sheetName) {
-    // @todo try to use json_to_sheet instead
-
     //XLSX.writeFile(workbook, 'out.xlsb');
     //XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary'})
 

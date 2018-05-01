@@ -57,6 +57,16 @@ class Abstract {
     return this.location.href;
   }
 
+  setConfig(config) {
+    this._config = config;
+
+    return this;
+  }
+
+  getConfig() {
+    return this._config;
+  }
+
   async scan(searchable) {
     //console.log('module/scraper/adapter/abstract.js', searchable);
     if (_.isArray(searchable)) { // @todo if need iterate over array then you should to filter only url links in array because can be any value
@@ -87,7 +97,7 @@ class Abstract {
   }
 
   async getFields(response) {
-    let $ = this.$ = cheerio.load(response);
+    let $ = /*this.$ =*/ cheerio.load(response);
 
     let i = 0;
     let fields = $(this.config.group.selector).map((i, element) => {
@@ -96,8 +106,9 @@ class Abstract {
       for (let name in this.config.group.fields) {
         this.currField = name;
         let fieldConfig = this.currFieldConfig;
-        fields[name] = this.getValue(group.find(fieldConfig.selector));
-        fields[name] = this.configHandler.process(fields[name], this.currFieldConfig);
+        let selector = _.isString(fieldConfig) ? fieldConfig : fieldConfig.selector;
+        fields[name] = this.getValue(group.find(selector));
+        fields[name] = this.configHandler.process(fields[name], fieldConfig);
 
         this.currField = '';
       }

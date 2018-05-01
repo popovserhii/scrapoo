@@ -76,53 +76,16 @@ class Scraper /*extends mix(Object).with(ConfigManageMixin)*/ {
   }*/
 
   async run(taskName = null) {
-    /*let nightmare = Nightmare({
-      show: true,
-      webPreferences: {
-        webSecurity: false
-      }
-    });*/
-
-    //let size = _.size(this.config);
-    //for (let i = 0; i < size; i++) {
-
     //nightmare.useragent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     for (let name in this.config) {
-
-      //console.log(sourceName);
-      //console.log(this.config);
-      //console.log('./source/' + currConfig.source.type);
-
       if (taskName && taskName !== name) {
         continue;
       }
 
-      //let config = _.merge((this.config.default || {}), (this.config[this.source.config.pool] || {}), this.config[key]);
-
-      //let currConfig = this.config[name];
-      // @todo Use mixin
-      //let pool = this.config[name].source.pool;
-      //let defaultConfig = _.has(this.config, `default.${pool}.scraper`) ? _.get(this.config, `default.${pool}.scraper`) : {};
-      //let currConfig = _.merge({}, defaultConfig, this.config[name]);
-
-      //let currConfig = this.manageConfig('scraper', name);
-      //console.log(name);
-      //console.log(currConfig);
-
       try {
-        //let Source = require('scraper/source/' + currConfig.source.type);
-        //let Source = require('scraper/source/site');
-
-        //console.log(currConfig.source);
-        //let source = new Source(nightmare, currConfig);
-        //let source = this.s;
         let source = this.factory.create(this.config[name].source.type, name);
-
-
         await source.start();
-
         this._sources[name] = source;
-
         source.browser.then(() => {
           return source.browser.end();
         });

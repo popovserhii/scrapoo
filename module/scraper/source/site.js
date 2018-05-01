@@ -1,5 +1,3 @@
-const fs = require('fs');
-const d3 = require('d3-dsv');
 const _ = require('lodash');
 const cheerio = require('cheerio');
 const useragent = require('random-useragent');
@@ -76,7 +74,7 @@ class Site extends Abstract{
     }
 
     let nextUrl = false;
-    if (await this.nextPageExist()) {
+    if (await this.getNextPage()) {
       nextUrl = this._nextUrl;
     }
 

@@ -1,9 +1,6 @@
-//const File = require('../file');
-//const Nightmare = require('nightmare');
-
 class SourceFactory {
   constructor(container) {
-      this._container = container;
+    this._container = container;
   }
 
   create(type, task) {
