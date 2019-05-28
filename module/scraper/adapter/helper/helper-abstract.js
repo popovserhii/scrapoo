@@ -33,9 +33,13 @@ class HelperAbstract {
   }
 
   getConfig(key) {
+    if (key === undefined) {
+      return this.config;
+    }
+
     return this.config.hasOwnProperty(key)
       ? this.config[key]
-      : this.config;
+      : undefined;
   }
 }
 

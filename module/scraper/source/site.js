@@ -20,7 +20,7 @@ class Site extends Abstract{
     //console.log(siteName);
     //console.log(this.config);
 
-    let response = await this.nightmare
+    let response = await this.browser
       .goto(siteName)
       .wait()
       .evaluate(function () {
@@ -54,7 +54,7 @@ class Site extends Abstract{
   async _scanIterable(url) {
     let options = this.config.source.options;
 
-     let urls = await this.nightmare
+     let urls = await this.browser
         .goto(url)
         .wait()
         .evaluate(iterate => {
@@ -78,7 +78,7 @@ class Site extends Abstract{
       nextUrl = this._nextUrl;
     }
 
-    this.nightmare.useragent(useragent.getRandom());
+    this.browser.useragent(useragent.getRandom());
     await this.process(url);
 
     if (nextUrl) {
@@ -90,7 +90,7 @@ class Site extends Abstract{
   }
 
   async prepareFields() {
-    let response = await this.nightmare
+    let response = await this.browser
       .evaluate(function () {
         return document.body.innerHTML
       });

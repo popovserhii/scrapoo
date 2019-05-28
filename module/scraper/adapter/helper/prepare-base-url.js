@@ -27,19 +27,36 @@ class PrepareBaseUrl extends PrepareAbstract {
       // string start with http:// or https://
       if (val.indexOf('://') > -1) {
         return;
-      } else if (this.getConfig('location')) {
+      } else if (this._hasLocation()) {
         let url = this.getConfig('location');
         let location = (typeof url === 'object')
           ? url
           : URL.parse(url);
 
-        relative[key] = location.protocol + "//" + location.host + _.trimStart(val, '.');
+        //location.pathname = _.trimStart(val, '.');
+        //relative[key] = URL.format(location);
+        relative[key] = location.protocol + "//" + location.host + '/' +  _.trimStart(val, './');
       } else {
         throw new Error('You must set "location" option before calling prepare() method');
       }
     });
 
     return isArray ? relative : relative.shift();
+  }
+
+  _hasLocation() {
+    if (this.getConfig('location')) {
+      return true;
+    }
+
+    let url = _.get(this.config, 'params.location');
+    if (!url) {
+      return false;
+    }
+
+    this.setConfig('location', url);
+
+    return true;
   }
 }
 

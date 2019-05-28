@@ -26,12 +26,12 @@ class HotlineUa  extends Abstract {
       let searchUrl = s.sprintf(this.config.url, searchKey);
 
       //console.log('Start searchable iterate...');
-      await this.nightmare.goto(searchUrl);
+      await this.browser.goto(searchUrl);
 
       await this.resolveCaptcha();
       //console.log('Pass captcha...');
 
-      let response = await this.nightmare
+      let response = await this.browser
         //.goto(searchUrl)
         //.goto('http://hotline.ua/sr/autocomplete/?term=MPXQ2')
         .wait()
@@ -63,7 +63,7 @@ class HotlineUa  extends Abstract {
       let url = this.location.protocol + "//" + this.location.host + href;
 
       let wait = Math.floor(Math.random() * (4 - 3 + 1)) + 2; // dynamic wait: 2-8 seconds
-      let body = await this.nightmare
+      let body = await this.browser
         .goto(url)
         .click(this.config.action.click)
         .wait(wait * 1000)
@@ -99,7 +99,7 @@ class HotlineUa  extends Abstract {
     }*/
 
 
-    let captchaExists = await this.nightmare.exists('#g-recaptcha');
+    let captchaExists = await this.browser.exists('#g-recaptcha');
 
     //console.log('hotline-ua89', captchaExists);
 
@@ -107,12 +107,12 @@ class HotlineUa  extends Abstract {
       return;
     }
 
-    let url = await this.nightmare.url();
+    let url = await this.browser.url();
     //console.log('hotline-ua106', url);
 
 
     //try {
-    let result = await this.nightmare
+    let result = await this.browser
       .wait(4000)
       .evaluate(function () {
         // @link https://stackoverflow.com/a/37690757/1335142
@@ -123,12 +123,12 @@ class HotlineUa  extends Abstract {
 
     //console.log('hotline-ua126', result);
 
-    captchaExists = await this.nightmare.wait(5000).exists('#g-recaptcha');
+    captchaExists = await this.browser.wait(5000).exists('#g-recaptcha');
 
     // second step if recaptcha hasn't been resolved wait for human
     while (captchaExists) {
       console.log('Waiting human interaction...');
-      captchaExists = await this.nightmare.wait(10000).exists('#g-recaptcha');
+      captchaExists = await this.browser.wait(10000).exists('#g-recaptcha');
     }
 
     //console.log('Something went wrong...');

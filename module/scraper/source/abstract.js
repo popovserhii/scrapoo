@@ -230,23 +230,12 @@ class Abstract {
 
   async process(searchable) {
     try {
-      //console.log(this.config.crawler);
       if (_.size(this.config.crawler)) {
         // iterate through crawlers if they are placed in config
         let fields = await this._scrap(searchable, this.config.crawler);
-
         if (fields && _.size(fields)) {
-          // @todo Подумати як обробляти ситуацію коли Адаптер може виконати будь яку кількість запитів,
-          // а потрібно додати змінні в _row для категорії і підкатегорії.
-          // Винести це в Препроцесор. Зробити розширену обробку значень, або перевести конфіг на .js
-
-          //if ('Site' === this.constructor.name) {
-          //  await this.prepareFields();
-          //}
-
           for (let f = 0; f < fields.length; f++) {
             let handled = this.preprocessor.process(_.merge({}, this.row, fields[f]));
-            //fields = this.preprocessor.process(fields);
             await this.getOutput().send(handled);
           }
         } else {

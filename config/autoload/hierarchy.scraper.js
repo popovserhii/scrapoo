@@ -7,7 +7,7 @@ module.exports = {
         "name": "dentistry-catalog",
 
         "path": "https://www.dlab.com.ua/biznes-katalog",
-        "selector": "ul li a:contains('Стоматологія')", // вибираємо посилання по яких будемо сканувати, в даному випадку одне
+        "selector": "ul li a:contains('Реабілітаційні центри')", // Стоматологія \ Реабілітаційні центри // вибираємо посилання по яких будемо сканувати, в даному випадку одне
 
         //"fields": {} // на першому рівні в нас немає важливої інформації для збереження
 
@@ -18,8 +18,8 @@ module.exports = {
           //"path": "https://www.dlab.com.ua/biznes-katalog",
           //"selector": ".company-info-desc a", // опускаємо "selector", якщо є "group". Це значить що потрібно парсити значення на поточній сторінці і провалюватись в середину
 
-          "pagination": {
-          //"iteration": {
+          //"pagination": {
+          "iterate": {
             // classic - класичний перемикач з кількістю сторінок (1, 2, 3..., 99)
             // load-more - при кліку на кнопку підвантажується наступна порація даних
             // on-scroll - коли прокручування пройшло до кінця сторінки, автоматично підтягується наступна порація даних
@@ -54,9 +54,10 @@ module.exports = {
             "context": ".company-info", // якщо ми знаходимось в "group", тоді вказуємо "context" (селектор) відносно якого буде відбуватись подальша вибірка інформації
             "selector": ".company-info-header h2 a", // "selector" який знаходиться в "group", працює відносно "context"
 
-            /*"fields": {
-              "ownership": {"selector": ".company-additional-info", "__output": {"as": "html"}, "__prepare": ["list-to-flat-json", "find-merge:{name:'Посуд'},{parent:''}", "delete:Все для дому"]}
-            },*/
+            "fields": {
+              "ownership": {"selector": ".company-additional-info"},
+              "url": {"selector": ".company-info-header h2[itemprop='name'] a", "__output": {"attr": "href"}, "__prepare": [{"name": "base-url", "config": {"location": "$source.location"}}]},
+            },
 
             "source": { // в даному випадку це кінцевий елемент в ієрархії, тому залишається лише вибрати потрібні дані і зберегти оброблену сутність
               "fields": {
@@ -85,12 +86,14 @@ module.exports = {
       "preprocessor": {
         "fields": {
           "name": "$fields.name",
+          "ownership": "$fields.ownership",
           "zip": "$fields.zip",
           "address": "$fields.address",
           "phone": "$fields.phone",
           "phone_additional": "$fields.phone_additional",
           "email": "$fields.email",
           "site": "$fields.site",
+          "url": "$fields.url",
         }
       }
     }

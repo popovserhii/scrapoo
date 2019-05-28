@@ -27,7 +27,7 @@ class KtcUa extends Abstract {
       //console.log(this.config);
       //console.log(searchKey);
 
-      let response = await this.nightmare
+      let response = await this.browser
         .goto(s.sprintf(this.config.url, searchKey))
         .wait()
         .evaluate(function () {
@@ -48,7 +48,7 @@ class KtcUa extends Abstract {
       let url = this.location.protocol + "//" + this.location.host + href;
 
       let wait = Math.floor(Math.random() * (8 - 2 + 1)) + 2; // dynamic wait: 2-8 seconds
-      let body = await this.nightmare
+      let body = await this.browser
         .goto(url)
         .wait(wait * 1000)
         .evaluate(function () {

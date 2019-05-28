@@ -20,11 +20,19 @@ class ConfigHandler {
   }
 
   process(value, fieldConfig) {
+    //value = this.processValue(value);
     value = this.processFilters(value, fieldConfig);
     value = this.processPrepare(value, fieldConfig);
 
     return value;
   }
+
+  /*processValue(value) {
+    if (this.variably.is(value)) {
+      value = this.variably.process(value);
+    }
+    return value;
+  }*/
 
   processFilters(value, fieldConfig) {
     if (fieldConfig['__filter'] !== undefined) {
@@ -69,6 +77,14 @@ class ConfigHandler {
 
     parsed.params = parsed.params.map((param) => {
       return this.variably.process(_.isString(param) ? param.trim() : param);
+    });
+
+    _.each(parsed.params, (param, key) => {
+      parsed.params[key] = this.variably.process(_.isString(param) ? param.trim() : param);
+    });
+
+    _.each(parsed.config, (config, name) => {
+      parsed.config[name] = this.variably.process(_.isString(config) ? config.trim() : config);
     });
 
     return parsed;

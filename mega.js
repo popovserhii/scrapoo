@@ -13,79 +13,79 @@ class Mega {
 
   async run() {
     let catalogUrl = await nightmare
-        .goto('https://megamuscle.ua/admin')
-        .wait()
-        .type('#username', 'Roman')
-        .type('#login', 'Roman2016')
-        .click('#loginForm .form-button')
-        .wait(3000)
-        /*.then(() => {
-           let ex = nightmare.exists('#nav li.level0:nth-child(3) ul .level1:first-child a')
-               .then((ex) => {
-               console.log(ex);
+      .goto('https://megamuscle.ua/admin')
+      .wait()
+      .type('#username', 'Roman')
+      .type('#login', 'Roman2016')
+      .click('#loginForm .form-button')
+      .wait(3000)
+      /*.then(() => {
+         let ex = nightmare.exists('#nav li.level0:nth-child(3) ul .level1:first-child a')
+             .then((ex) => {
+             console.log(ex);
 
-             })
-             ;
+           })
+           ;
 
-            nightmare
-             .inject('js', 'node_modules/jquery/dist/jquery.js') // Look here!
-             .click('#nav li.level0:nth-child(3) ul .level1:first-child a');
-           console.log('-------------00');
-        })*/
-        .evaluate(function() {
-          var el = document.querySelector("#nav li.level0:nth-child(3) ul .level1:first-child a").href;
-          //var el = document.querySelector("#nav").getAttribute('id');
-          return el;
-          //return jQuery('#nav li.level0:nth-child(3) ul .level1:first-child').attr('href');
-          /*return {
-            name: $('.downloadItemTitle').text().trim(),
-            href: $('.downloadGo').prop('href').trim()
-          };*/
+          nightmare
+           .inject('js', 'node_modules/jquery/dist/jquery.js') // Look here!
+           .click('#nav li.level0:nth-child(3) ul .level1:first-child a');
+         console.log('-------------00');
+      })*/
+      .evaluate(function () {
+        var el = document.querySelector("#nav li.level0:nth-child(3) ul .level1:first-child a").href;
+        //var el = document.querySelector("#nav").getAttribute('id');
+        return el;
+        //return jQuery('#nav li.level0:nth-child(3) ul .level1:first-child').attr('href');
+        /*return {
+          name: $('.downloadItemTitle').text().trim(),
+          href: $('.downloadGo').prop('href').trim()
+        };*/
 
-        }/*, function(result){
+      }/*, function(result){
           // now we're inside Node scope again
           console.log( result);
         }*/)
-        /*.then(async function(result) {
-          console.log(result);
-          return nightmare
-            .goto(result)
-            .wait()
-            .click('[title="Следующая страница"]')
-            .wait(2000)
+    /*.then(async function(result) {
+      console.log(result);
+      return nightmare
+        .goto(result)
+        .wait()
+        .click('[title="Следующая страница"]')
+        .wait(2000)
 
-        }).then((result) => {
-          console.log('bu vu');
-      });*/
+    }).then((result) => {
+      console.log('bu vu');
+  });*/
 
-        let nextPage = nightmare
-          .goto(catalogUrl)
-          .type('.pager input[name="page"]', '')
-          .type('.pager input[name="page"]', 38)
-          .type('.pager input[name="page"]', '\u000d')
-          //.type('body','\u000d')
-          //.click('[title="Найти"]')
-          .wait(5000)
-          .exists('[title="Следующая страница"]');
-        await this.processCatalogPage();
+    let nextPage = nightmare
+      .goto(catalogUrl)
+      .type('.pager input[name="page"]', '')
+      .type('.pager input[name="page"]', 38)
+      .type('.pager input[name="page"]', '\u000d')
+      //.type('body','\u000d')
+      //.click('[title="Найти"]')
+      .wait(5000)
+      .exists('[title="Следующая страница"]');
+    await this.processCatalogPage();
 
-        let urls = [];
-        while (nextPage) {
-          nightmare
-            .click('[title="Следующая страница"]')
-            .wait(2000);
+    let urls = [];
+    while (nextPage) {
+      nightmare
+        .click('[title="Следующая страница"]')
+        .wait(2000);
 
-          let _url = await this.processCatalogPage();
+      let _url = await this.processCatalogPage();
 
-          //urls = _.merge(urls, _url);
-          urls = urls.concat(_url);
+      //urls = _.merge(urls, _url);
+      urls = urls.concat(_url);
 
-          //console.log(urls);
+      //console.log(urls);
 
 
-          nextPage = nightmare.exists('[title="Следующая страница"]');
+      nextPage = nightmare.exists('[title="Следующая страница"]');
 
-        }
+    }
 
 
     //console.log(catalogUrl);
@@ -94,8 +94,8 @@ class Mega {
 
   async processCatalogPage() {
     let urls = await nightmare
-      //.goto(catalogUrl)
-      //.wait()
+    //.goto(catalogUrl)
+    //.wait()
       .evaluate(function () {
         //var el = document.querySelectorAll('tbody tr').href;
         //var el = document.querySelector("#nav").getAttribute('id');
@@ -108,7 +108,7 @@ class Mega {
 
 
     //console.log(urls);
-    for (let i = 0; i < urls.length; i++){
+    for (let i = 0; i < urls.length; i++) {
       await this.processProductPage(urls[i]);
     }
 
@@ -155,9 +155,9 @@ class Mega {
     }
 
     let button = await nightmare
-      //.wait()
-      //.exists('[title="Save and Continue Edit"]')
-      //.click('[title="Save and Continue Edit"]')
+    //.wait()
+    //.exists('[title="Save and Continue Edit"]')
+    //.click('[title="Save and Continue Edit"]')
       .click('[title="Сохранить"]')
       .wait(3000);
 
@@ -181,7 +181,7 @@ class Mega {
   }
 }
 
-(async function() {
+(async function () {
   let mega = new Mega();
   await mega.run();
 })();

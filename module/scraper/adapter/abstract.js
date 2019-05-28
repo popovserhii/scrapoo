@@ -1,13 +1,14 @@
-const cheerio = require('cheerio');
-const URL = require('url');
 const _ = require('lodash');
+const cheerio = require('cheerio');
+const useragent = require('random-useragent');
+const URL = require('url');
 const Entities = require('html-entities').Html5Entities;
 
 const entities = new Entities();
 
 class Abstract {
-  constructor(nightmare, configHandler, config) {
-    this._browser = nightmare;
+  constructor(browser, configHandler, config) {
+    this._browser = browser;
     this._config = config || {};
     this._configHandler = configHandler;
 
@@ -26,7 +27,7 @@ class Abstract {
     }
   }
 
-  get nightmare() {
+  get browser() {
     return this._browser;
   }
 
@@ -78,26 +79,31 @@ class Abstract {
       return;
     }
 
-    this.location = URL.parse(searchable);
+    let response = await this._getResponse(searchable);
 
-    let response = await this.nightmare
-      .goto(searchable)
-      //.wait()
-      .evaluate(function () {
-        return document.body.innerHTML
-      });
+    /*let browserUrl = await this.browser.evaluate(() => window.location.href);
+    let response = (searchable === browserUrl)
+      ? this.$
+      : await this._getResponse(url);
 
-    //console.log(response);
+    let $ = (url === _.get(this.location, 'href'))
+      ? this.$
+      : await this._getResponse(url);*/
+
 
     if (!response.length) {
       return null;
     }
 
-    return this.getFields(response.trim());
+    return this.getFields(response);
   }
 
   async getFields(response) {
-    let $ = /*this.$ =*/ cheerio.load(response);
+    //let $ = this.$ = cheerio.load(response);
+
+    let $ = _.isString(response)
+      ? cheerio.load(response)
+      : response;
 
     let i = 0;
     let fields = $(this.config.group.selector).map((i, element) => {
@@ -150,6 +156,28 @@ class Abstract {
     return ('html' === type)
       ? entities.decode(this.$.html(elm).replace(/>\s+</g, '><').replace(/\s\s+/g, ' ')) // @toto Improve regexp
       : elm.text().trim();
+  }
+
+  async _getResponse(url) {
+    let browserUrl = await this.browser.evaluate(() => window.location.href);
+    let response = (url === browserUrl)
+      ? await this.browser.evaluate(() => document.body.innerHTML)
+      : await this.browser
+        .setUserAgent(useragent.getRandom())
+        .goto(url)
+        .evaluate(() => document.body.innerHTML);
+
+    /*let response = await this.browser
+      .setUserAgent(useragent.getRandom())
+      .goto(url)
+      .evaluate(function () {
+        return document.body.innerHTML
+      });*/
+
+    //browserUrl = await this.browser.evaluate(() => window.location.href);
+    this.location = URL.parse(url);
+
+    return this.$ = cheerio.load(response);
   }
 }
 

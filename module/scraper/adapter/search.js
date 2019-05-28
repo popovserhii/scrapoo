@@ -35,7 +35,7 @@ class Search extends Abstract {
 
       //console.log('module/scraper/adapter/search.js', this.config);
 
-      let response = await this.nightmare
+      let response = await this.browser
         .goto(searchUrl)
         .wait()
         .evaluate(function () {
@@ -58,7 +58,7 @@ class Search extends Abstract {
 
       //console.log(this.config.url.selector, url);
 
-      response = await this.nightmare
+      response = await this.browser
         .goto(url)
         .wait()
         .evaluate(function () {
