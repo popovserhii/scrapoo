@@ -41,7 +41,9 @@ class Preprocessor {
     return this._cast.pop() ? array : array.shift();
   }
 
-  process(fields) {
+  async process(fields) {
+    this.variably.set('fields', fields);
+
     //let isArray = _.isArray(fields);
     //let collection = _.castArray(fields);
 

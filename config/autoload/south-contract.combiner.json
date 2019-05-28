@@ -1,0 +1,55 @@
+{
+  "converter": {
+    "south-combiner": {
+      "pool": "shop-it",
+      "type": "combiner",
+
+      "file": [
+        {
+          "path": ["data/shop-it/south-contract/pprice_list.xls", "data/shop-it/south-contract/pprice_list-*.xls"],
+          "default": {
+            "index": "Код",
+            "fields": {
+              "sku": "Код",
+              "manufacturer_code": "Артикул",
+              "price_purchase": "Цена, грн.",
+              "price": "РРЦ, грн.",
+              "qty": "Остаток Киев, шт.",
+              "is_in_stock": "Склад Киев",
+              "subgroup": "Подгруппа",
+              "name": "Наименование укр."
+            },
+            "omit": {
+              "fields": {"is_in_stock": "0", "qty": 0}
+            },
+            "newly": {"separate": true}
+          }
+        }
+      ],
+      "output": {
+        "default": {
+          "path": "data/shop-it/inventory-combined.csv",
+          "options": {
+            "dateable": false
+          }
+        },
+        "newly": {
+          "path": "data/shop-it/inventory-combined-newly.csv",
+          "options": {
+            "dateable": false
+          }
+        }
+      },
+      "preprocessor": {
+        "fields": {
+          "sku": "$fields.sku",
+          "manufacturer_code": "$fields.manufacturer_code",
+          "price": {"value": ["$fields.price", "$fields.price_purchase"], "__filter": ["price"]},
+          "qty": {"value": "$fields.qty", "__filter": ["number"]},
+          "is_in_stock": {"value": "$fields.is_in_stock", "__filter": ["in-stock"]},
+          "name": {"value": "$fields.name", "__filter": [{"name": "translate", "config": {"from": "uk", "to":"en"}}]}
+        }
+      }
+    }
+  }
+}

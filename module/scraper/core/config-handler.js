@@ -19,10 +19,9 @@ class ConfigHandler {
     return this._globalConfig;
   }
 
-  process(value, fieldConfig) {
-    //value = this.processValue(value);
-    value = this.processFilters(value, fieldConfig);
-    value = this.processPrepare(value, fieldConfig);
+  async process(value, fieldConfig) {
+    value = await this.processFilters(value, fieldConfig);
+    value = await this.processPrepare(value, fieldConfig);
 
     return value;
   }
