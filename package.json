@@ -28,7 +28,7 @@
     "connect-timeout": "^1.9.0",
     "d3-dsv": "^1.0.8",
     "dateformat": "^2.2.0",
-    "exceljs": "^0.5.1",
+    "exceljs": "^3.3.1",
     "express": "^4.16.2",
     "globby": "^6.1.0",
     "google-translate-api": "^2.3.0",
